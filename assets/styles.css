@@ -110,3 +110,14 @@ button {
     background-color: #0f0f0f69;
   }
 }
+
+.sidebar {
+  width: 10vw;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.main-container {
+  flex: 1;
+  padding: 20px;
+  margin-left: 10vw; /* Adjust for sidebar width */
+}

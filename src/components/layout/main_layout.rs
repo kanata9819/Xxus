@@ -11,7 +11,7 @@ pub fn MainLayout() -> Element {
         link { rel: "stylesheet", href: CSS_PATH }
 
         div { class: "app-root",
-            Sidebar {}
+            div { class: "sidebar", Sidebar {} }
             div { class: "main-container", Outlet::<AppRoute> {} }
         }
     }
