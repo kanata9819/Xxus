@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use wasm_bindgen::prelude::*;
 use crate::components::sidebar::sidebar::Sidebar;
+use crate::components::home::home::Home;
 
 #[wasm_bindgen]
 extern "C" {
@@ -15,6 +16,6 @@ pub fn App() -> Element {
     rsx!(
         Sidebar {}
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "main-container" }
+        div { class: "main-container", Home {} }
     )
 }
