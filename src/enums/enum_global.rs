@@ -12,3 +12,9 @@ pub enum AppRoute {
     #[route("/settings")]
     Settings,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FlowType {
+    Income,
+    Expense,
+}
