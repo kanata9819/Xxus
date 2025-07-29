@@ -8,13 +8,12 @@ const CSS_PATH: Asset = asset!("/assets/components/home/home.css");
 
 #[component]
 pub fn Home() -> Element {
-    let total_amount: Signal<i32> = use_signal(|| 0);
-    let expense_amount: Signal<i32> = use_signal(|| 0);
-    let income_amount: Signal<i32> = use_signal(|| 0);
+    let total_amount: Signal<i32> = use_signal(|| 1000);
+    let expense_amount: Signal<i32> = use_signal(|| 100);
+    let income_amount: Signal<i32> = use_signal(|| 100);
     let cash_flows = use_signal(|| CashFlows { flows: vec![] });
 
     let () = use_hook(|| {
-        // Load initial data
         handle_load(cash_flows);
     });
 
@@ -50,6 +49,7 @@ pub fn Home() -> Element {
 fn handle_load(
     mut cash_flows: Signal<CashFlows>,
 ) {
+    // TODO: Load data from database
     cash_flows.set(CashFlows {
         flows: vec![
             CashFlow {
