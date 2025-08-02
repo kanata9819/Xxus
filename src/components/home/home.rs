@@ -1,20 +1,19 @@
-use dioxus::prelude::*;
 use super::list::List;
-use crate::structs::structs::CashFlows;
-use crate::structs::structs::CashFlow;
-use crate::enums::enum_global::FlowType;
+use dioxus::prelude::*;
+use tauri_sys::core::invoke;
+use shared_types::CashFlow;
 
 const CSS_PATH: Asset = asset!("/assets/components/home/home.css");
 
 #[component]
 pub fn Home() -> Element {
-    let total_amount: Signal<i32> = use_signal(|| 1000);
-    let expense_amount: Signal<i32> = use_signal(|| 100);
-    let income_amount: Signal<i32> = use_signal(|| 100);
-    let cash_flows = use_signal(|| CashFlows { flows: vec![] });
+    let total_amount: Signal<i32> = use_signal(|| 0);
+    let expense_amount: Signal<i32> = use_signal(|| 0);
+    let income_amount: Signal<i32> = use_signal(|| 0);
+    let cash_flows: Signal<Vec<CashFlow>> = use_signal(|| vec![]);
 
-    let () = use_hook(|| {
-        handle_load(cash_flows);
+    use_future(move || async move {
+        handle_load(cash_flows.clone()).await;
     });
 
     rsx! {
@@ -28,11 +27,17 @@ pub fn Home() -> Element {
                 div { class: "income-expense-container",
                     div { class: "expense-container",
                         h1 { "Expense: {expense_amount}" }
-                        List { flows: cash_flows.read().flows.clone() }
+                        List {
+                            flows: cash_flows.read().to_vec(),
+                            target: "Expense",
+                        }
                     }
                     div { class: "income-container",
                         h1 { "Income: {income_amount}" }
-                        List { flows: cash_flows.read().flows.clone() }
+                        List {
+                            flows: cash_flows.read().to_vec(),
+                            target: "Income",
+                        }
                     }
                 }
             }
@@ -46,24 +51,22 @@ pub fn Home() -> Element {
     }
 }
 
-fn handle_load(
-    mut cash_flows: Signal<CashFlows>,
-) {
-    // TODO: Load data from database
-    cash_flows.set(CashFlows {
-        flows: vec![
-            CashFlow {
-                id: 1,
-                amount: 300,
-                name: "Expense 1".to_string(),
-                flow: FlowType::Expense,
-            },
-            CashFlow {
-                id: 2,
-                amount: 700,
-                name: "Income 1".to_string(),
-                flow: FlowType::Income,
-            },
-        ],
-    });
+async fn list_cash_flows_or_empty() -> Vec<CashFlow> {
+    invoke::<Vec<CashFlow>>("list_cash_flows", &()).await
+}
+
+async fn handle_load(mut cash_flows: Signal<Vec<CashFlow>>) {
+
+    let result: bool = invoke::<bool>("init_db", &()).await;
+
+    let flows: Vec<CashFlow> = list_cash_flows_or_empty().await;
+
+    web_sys::console::log_1(&format!("init_db: {}", result).into());
+
+    if flows.is_empty() {
+        cash_flows.set(vec![]);
+        return;
+    }
+
+    cash_flows.set(flows);
 }

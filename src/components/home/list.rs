@@ -1,15 +1,25 @@
 use dioxus::prelude::*;
-use crate::structs::structs::CashFlows;
+use shared_types::CashFlow;
+
+#[derive(Props, Clone, PartialEq)]
+pub struct ListProps {
+    pub flows: Vec<CashFlow>,
+    pub target: String,
+}
 
 #[component]
-pub fn List(props: CashFlows) -> Element {
+pub fn List(props: ListProps) -> Element {
     rsx! {
         div { class: "list-container",
             h2 { "List of Items" }
             ul {
-                li { "Item 1" }
-                li { "Item 2" }
-                li { "Item 3" }
+                for flow in props.flows {
+                    if flow.flow == props.target {
+                        li { "{flow.amount}" }
+                        li { "{flow.name}" }
+                        li { "{flow.date}" }
+                    }
+                }
             }
         }
     }
