@@ -1,0 +1,168 @@
+// 🪟 GLASSMORPHISM INPUT THEME
+$glass-primary: rgba(255, 255, 255, 0.1);
+$glass-secondary: rgba(255, 255, 255, 0.05);
+$glass-border: rgba(255, 255, 255, 0.2);
+$glass-hover: rgba(255, 255, 255, 0.15);
+
+$accent-blue: #3b82f6;
+$accent-green: #10b981;
+$accent-red: #ef4444;
+$accent-purple: #8b5cf6;
+
+$text-primary: #f8fafc;
+$text-secondary: #94a3b8;
+$text-muted: #64748b;
+
+.input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label {
+            font-weight: 600;
+            color: $text-primary;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            padding: 16px 20px;
+            border: 1px solid $glass-border;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: $glass-secondary;
+            backdrop-filter: blur(15px) saturate(180%);
+            color: $text-primary;
+            transition: all 0.3s ease;
+            outline: none;
+
+            &:focus {
+                border-color: $accent-blue;
+                background: rgba(59, 130, 246, 0.1);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+
+            &::placeholder {
+                color: $text-muted;
+            }
+
+            &.error {
+                border-color: $accent-red;
+                background: rgba(239, 68, 68, 0.1);
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            }
+        }
+
+        .select-field {
+            padding: 16px 20px;
+            border: 1px solid $glass-border;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: $glass-secondary;
+            backdrop-filter: blur(15px) saturate(180%);
+            color: $text-primary;
+            transition: all 0.3s ease;
+            outline: none;
+            cursor: pointer;
+
+            &:focus {
+                border-color: $accent-blue;
+                background: rgba(59, 130, 246, 0.1);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+        }
+
+        .error-message {
+            color: $accent-red;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+    }
+
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(15px) saturate(180%);
+
+            &.btn-primary {
+                background: linear-gradient(135deg, $accent-blue, $accent-purple);
+                color: $text-primary;
+
+                &:hover {
+                    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+                }
+            }
+
+            &.btn-secondary {
+                background: $glass-primary;
+                color: $text-primary;
+                border: 1px solid $glass-border;
+
+                &:hover {
+                    background: $glass-hover;
+                    border-color: rgba(255, 255, 255, 0.3);
+                }
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+        }
+    }
+}
+
+// アニメーション
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-form {
+    animation: slideInUp 0.5s ease-out;
+}
+
+// レスポンシブデザイン
+@media (max-width: 480px) {
+    .input-form {
+        .button-group {
+            flex-direction: column;
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    }
+}

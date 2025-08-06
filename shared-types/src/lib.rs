@@ -8,3 +8,10 @@ pub struct CashFlow {
     pub flow: String,
     pub date: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct  AddCashFlowProps {
+    pub name: String,
+    pub amount: i32,
+    pub flow_type: String
+}

@@ -1,6 +1,6 @@
 mod data_access;
 
-use shared_types::CashFlow;
+use shared_types::{CashFlow, AddCashFlowProps};
 use data_access::data_access as dac;
 
 #[tauri::command]
@@ -24,8 +24,13 @@ async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
 }
 
 #[tauri::command(async)]
-async fn add_cash_flow(amount: i32, name: String, flow: String) -> Result<(), String> {
-    dac::add_cash_flow(amount, name, flow).await
+async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
+    dac::add_cash_flow(props).await
+}
+
+#[tauri::command]
+async fn delete_whole_data() -> Result<bool, String> {
+  dac::delete_whole_data().await
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -36,7 +41,8 @@ pub fn run() {
             greet,
             list_cash_flows,
             add_cash_flow,
-            init_db
+            init_db,
+            delete_whole_data
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
