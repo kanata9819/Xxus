@@ -10,7 +10,7 @@ dioxus-logger = "0.6"
 wasm-bindgen = {version = "0.2.100", features = ["serde-serialize", "serde"] }
 wasm-bindgen-futures = "0.4"
 web-sys = "0.3"
-js-sys = "0.3"
+
 serde = { version = "1", features = ["derive"] }
 serde-wasm-bindgen = "0.6"
 dioxus-router = "0.6.3"
