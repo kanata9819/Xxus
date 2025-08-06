@@ -54,8 +54,8 @@ pub async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
     Ok(true)
 }
 
-pub async fn delete_whole_data() -> Result<bool, String> {
+pub async fn delete_whole_data() -> Result<(), String> {
     let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM cash_flow", ()).map_err(|e| e.to_string())?;
-    Ok(true)
+    Ok(())
 }

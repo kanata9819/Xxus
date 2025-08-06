@@ -29,7 +29,7 @@ async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
 }
 
 #[tauri::command]
-async fn delete_whole_data() -> Result<bool, String> {
+async fn delete_whole_data() -> Result<(), String> {
   dac::delete_whole_data().await
 }
 
