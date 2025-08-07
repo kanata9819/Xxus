@@ -17,7 +17,7 @@ $text-muted: #64748b;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    width: 100%;
+    width: 25vw;
     max-width: 500px;
 
     .form-group {
@@ -159,7 +159,7 @@ $text-muted: #64748b;
     .input-form {
         .button-group {
             flex-direction: column;
-            
+
             .btn {
                 width: 100%;
             }

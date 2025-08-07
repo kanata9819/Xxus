@@ -3,18 +3,22 @@ use serde_json;
 use shared_types::AddCashFlowProps;
 use tauri_sys::core::invoke;
 
+static CSS_PATH: Asset = asset!("assets/components/home/input.css");
+
 #[component]
 pub fn Inputs(
     total: Signal<i32>,
     name: Signal<String>,
     amount: Signal<i32>,
     flow_type: &'static str,
-    parent_need_refresh: Signal<bool>
+    parent_need_refresh: Signal<bool>,
+    disp_input: Signal<bool>
 ) -> Element {
     let mut input_name: Signal<String> = use_signal(|| String::new());
     let mut input_amount: Signal<i32> = use_signal(|| 0);
 
     rsx! {
+        link { rel: "stylesheet", href: CSS_PATH }
         div { class: "input-form",
             div { class: "form-group",
                 label { "項目名" }
@@ -48,7 +52,13 @@ pub fn Inputs(
                     class: "btn btn-primary",
                     onclick: move |_: MouseEvent| async move {
                         {
-                            handle_submit(input_name(), input_amount(), flow_type, parent_need_refresh)
+                            handle_submit(
+                                    input_name(),
+                                    input_amount(),
+                                    flow_type,
+                                    parent_need_refresh,
+                                    disp_input,
+                                )
                                 .await
                         };
                     },
@@ -63,7 +73,8 @@ async fn handle_submit(
     input_name: String,
     input_amount: i32,
     flow_type: &str,
-    mut parent_need_refresh: Signal<bool>
+    mut parent_need_refresh: Signal<bool>,
+    mut disp_input: Signal<bool>
 ) {
     if input_name.is_empty() {
         return;
@@ -81,7 +92,6 @@ async fn handle_submit(
 
     if result {
         parent_need_refresh.set(true);
-    } else {
-        web_sys::console::log_1(&format!("NG").into());
+        disp_input.set(false);
     }
 }

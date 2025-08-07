@@ -85,6 +85,7 @@ pub fn Home() -> Element {
                                     amount: home_strc.expense,
                                     flow_type: "ex",
                                     parent_need_refresh: need_refresh,
+                                    disp_input: disp_ex_input,
                                 }
                             }
                         }
@@ -111,6 +112,7 @@ pub fn Home() -> Element {
                                     amount: home_strc.income,
                                     flow_type: "in",
                                     parent_need_refresh: need_refresh,
+                                    disp_input: disp_in_input,
                                 }
                             }
                         }

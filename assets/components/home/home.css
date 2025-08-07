@@ -122,10 +122,6 @@
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
 }
-.home-container .budget-container .income-expense-container .expense-container::-webkit-scrollbar,
-.home-container .budget-container .income-expense-container .income-container::-webkit-scrollbar {
-  width: 6px;
-}
 .home-container .budget-container .income-expense-container .expense-container::-webkit-scrollbar-track,
 .home-container .budget-container .income-expense-container .income-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
@@ -169,10 +165,7 @@
   margin-bottom: 80px;
   min-height: 0;
 }
-.home-container .budget-container .income-expense-container .expense-container .list-container::-webkit-scrollbar,
-.home-container .budget-container .income-expense-container .income-container .list-container::-webkit-scrollbar {
-  width: 6px;
-}
+
 .home-container .budget-container .income-expense-container .expense-container .list-container::-webkit-scrollbar-track,
 .home-container .budget-container .income-expense-container .income-container .list-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
