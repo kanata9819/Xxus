@@ -1,18 +1,17 @@
 mod data_access;
 
-use shared_types::{CashFlow, AddCashFlowProps};
-use data_access::data_access as dac;
+use data_access::{data_access as dac, work_schedule as ws};
+use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
 
 #[tauri::command]
 async fn init_db() -> bool {
     match dac::init_db().await {
         Ok(_) => true,
-        Err(_) => {
-            false
-        }
+        Err(_) => false,
     }
 }
 
+//==============HOME==================================
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -30,9 +29,25 @@ async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
 
 #[tauri::command]
 async fn delete_whole_data() -> Result<(), String> {
-  dac::delete_whole_data().await
+    dac::delete_whole_data().await
 }
 
+//===============WORKSCHEDULE=================================
+#[tauri::command]
+async fn init_work_schedule_db() -> bool {
+    match ws::init_db().await {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
+#[tauri::command]
+async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
+  ws::add_work_schedule(props).await
+}
+
+
+//===============CORE=========================================
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -42,7 +57,9 @@ pub fn run() {
             list_cash_flows,
             add_cash_flow,
             init_db,
-            delete_whole_data
+            delete_whole_data,
+            init_work_schedule_db,
+            add_work_schedule
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

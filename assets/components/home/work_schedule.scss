@@ -1,0 +1,170 @@
+// ====== Design Tokens ======
+$font-stack: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+  Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$radius: 12px;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+$focus: 0 0 0 3px rgba(59, 130, 246, 0.35); // blue-500 ish
+
+// Light
+$bg: #ffffff;
+$bg-muted: #f6f7f9;
+$border: #e5e7eb;
+$text: #0f172a;
+$text-muted: #475569;
+$danger: #dc2626;
+$primary: #2563eb;
+$primary-700: #1d4ed8;
+
+// Dark (prefers-color-scheme)
+$bg-dark: #0b1020;
+$bg-muted-dark: #111a2e;
+$border-dark: #26324d;
+$text-dark: #e6edf7;
+$text-muted-dark: #9fb0ce;
+
+// ====== Mixins ======
+@mixin card {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  box-shadow: $shadow;
+}
+
+@mixin field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $bg;
+  color: $text;
+  font: 14px/1.4 $font-stack;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+
+  &::placeholder { color: mix($text-muted, $text, 60%); }
+
+  &:hover { border-color: darken($border, 8%); }
+
+  &:focus-visible {
+    outline: none;
+    border-color: $primary;
+    box-shadow: $focus;
+  }
+
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+@mixin btn {
+  padding: 10px 14px;
+  border-radius: $radius;
+  font: 14px/1 $font-stack;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform .05s ease, background-color .15s ease, color .15s ease, border-color .15s ease;
+
+  &:active { transform: translateY(1px); }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+// ====== Component Root ======
+.work-record-input {
+  @include card;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+
+  h2 {
+    font: 700 18px/1.2 $font-stack;
+    color: $text;
+    margin: 2px 0 6px;
+  }
+
+  label {
+    font: 600 13px/1.2 $font-stack;
+    color: $text;
+    margin-top: 6px;
+  }
+
+  .field {
+    @include field;
+    &--textarea { min-height: 72px; resize: vertical; }
+  }
+
+  .helper {
+    margin-top: 6px;
+    font: 12px/1.5 $font-stack;
+    color: $text-muted;
+
+    .pair { margin-top: 2px; }
+  }
+
+  .error {
+    margin: 2px 0 6px;
+    color: $danger;
+    font: 12px/1.3 $font-stack;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+
+    .btn { @include btn; }
+
+    .btn--ghost {
+      background: $bg-muted;
+      color: $text;
+      border-color: $border;
+
+      &:hover { background: darken($bg-muted, 4%); }
+    }
+
+    .btn--primary {
+      background: $primary;
+      color: white;
+
+      &:hover { background: $primary-700; }
+      &:focus-visible { box-shadow: $focus; }
+    }
+  }
+}
+
+// ====== Dark Mode ======
+@media (prefers-color-scheme: dark) {
+  .work-record-input {
+    background: $bg-dark;
+    border-color: $border-dark;
+
+    h2, label { color: $text-dark; }
+
+    .field {
+      background: $bg-dark;
+      color: $text-dark;
+      border-color: $border-dark;
+
+      &::placeholder { color: mix($text-muted-dark, $text-dark, 60%); }
+      &:hover { border-color: lighten($border-dark, 6%); }
+    }
+
+    .helper { color: $text-muted-dark; }
+
+    .actions {
+      .btn--ghost {
+        background: $bg-muted-dark;
+        color: $text-dark;
+        border-color: $border-dark;
+
+        &:hover { background: lighten($bg-muted-dark, 3%); }
+      }
+    }
+  }
+}
+
+// ====== Responsive ======
+@media (max-width: 480px) {
+  .work-record-input { padding: 12px; }
+}

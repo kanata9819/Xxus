@@ -1,0 +1,147 @@
+.work-record-input {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+}
+.work-record-input h2 {
+  font: 700 18px/1.2 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #0f172a;
+  margin: 2px 0 6px;
+}
+.work-record-input label {
+  font: 600 13px/1.2 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #0f172a;
+  margin-top: 6px;
+}
+.work-record-input .field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font: 14px/1.4 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.work-record-input .field::-moz-placeholder {
+  color: rgb(48.6, 60.2, 79.8);
+}
+.work-record-input .field::placeholder {
+  color: rgb(48.6, 60.2, 79.8);
+}
+.work-record-input .field:hover {
+  border-color: rgb(205.9391304348, 209.7130434783, 217.2608695652);
+}
+.work-record-input .field:focus-visible {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+.work-record-input .field:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.work-record-input .field--textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+.work-record-input .helper {
+  margin-top: 6px;
+  font: 12px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #475569;
+}
+.work-record-input .helper .pair {
+  margin-top: 2px;
+}
+.work-record-input .error {
+  margin: 2px 0 6px;
+  color: #dc2626;
+  font: 12px/1.3 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+.work-record-input .actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.work-record-input .actions .btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font: 14px/1 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.05s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.work-record-input .actions .btn:active {
+  transform: translateY(1px);
+}
+.work-record-input .actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.work-record-input .actions .btn--ghost {
+  background: #f6f7f9;
+  color: #0f172a;
+  border-color: #e5e7eb;
+}
+.work-record-input .actions .btn--ghost:hover {
+  background: rgb(233.76, 236.12, 240.84);
+}
+.work-record-input .actions .btn--primary {
+  background: #2563eb;
+  color: white;
+}
+.work-record-input .actions .btn--primary:hover {
+  background: #1d4ed8;
+}
+.work-record-input .actions .btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  .work-record-input {
+    background: #0b1020;
+    border-color: #26324d;
+  }
+  .work-record-input h2, .work-record-input label {
+    color: #e6edf7;
+  }
+  .work-record-input .field {
+    background: #0b1020;
+    color: #e6edf7;
+    border-color: #26324d;
+  }
+  .work-record-input .field::-moz-placeholder {
+    color: rgb(187.4, 200.4, 222.4);
+  }
+  .work-record-input .field::placeholder {
+    color: rgb(187.4, 200.4, 222.4);
+  }
+  .work-record-input .field:hover {
+    border-color: rgb(48.1113043478, 63.3043478261, 97.4886956522);
+  }
+  .work-record-input .helper {
+    color: #9fb0ce;
+  }
+  .work-record-input .actions .btn--ghost {
+    background: #111a2e;
+    color: #e6edf7;
+    border-color: #26324d;
+  }
+  .work-record-input .actions .btn--ghost:hover {
+    background: rgb(21.1285714286, 32.3142857143, 57.1714285714);
+  }
+}
+@media (max-width: 480px) {
+  .work-record-input {
+    padding: 12px;
+  }
+}/*# sourceMappingURL=work_schedule.css.map */

@@ -39,6 +39,10 @@ pub fn Sidebar() -> Element {
                     handle_click: move |_| navigate(&nav, AppRoute::Home),
                 }
                 NavItem {
+                    name: "work",
+                    handle_click: move |_| navigate(&nav, AppRoute::WorkScheduleRoute),
+                }
+                NavItem {
                     name: "settings",
                     handle_click: move |_| navigate(&nav, AppRoute::Settings),
                 }

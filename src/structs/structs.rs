@@ -13,3 +13,4 @@ pub struct CashFlow {
     pub name: String,
     pub flow: FlowType,
 }
+
