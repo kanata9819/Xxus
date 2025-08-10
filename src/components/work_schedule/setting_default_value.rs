@@ -4,7 +4,7 @@ use shared_types::WorkRecord;
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
 #[component]
-pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
+pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
     let mut date: Signal<String> = use_signal(|| String::new());
     let mut start_time: Signal<String> = use_signal(|| String::new());
     let mut end_time: Signal<String> = use_signal(|| String::new());
@@ -34,8 +34,8 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "work-record-input",
-            h2 { class: "font-bold text-xl", "勤務実績入力" }
+        div { class: "setting_default_value-container",
+            h2 { class: "text-xl font-bold", "勤務実績入力" }
 
             // エラー表示
             if !error().is_empty() {

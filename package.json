@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  },
+  "scripts": {
+    "tailwind": "tailwindcss -i ./src/styles/tailwind.css -o ./assets/styles.css",
+    "tailwind:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./assets/styles.css --watch",
+    "dev": "concurrently -k \"pnpm:tailwind:watch\" \"cargo tauri dev\""
+  }
+}
