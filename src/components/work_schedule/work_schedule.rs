@@ -1,4 +1,4 @@
-use dioxus::{prelude::*};
+use dioxus::prelude::*;
 use shared_types::WorkRecord;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
@@ -18,13 +18,13 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
         date.set("2023-01-01".to_string());
         start_time.set("09:00".to_string());
         end_time.set("18:00".to_string());
-        rest_time.set("00:00".to_string());
+        rest_time.set("01:00".to_string());
         hourly_wage.set("1200".to_string());
         note.set("".to_string());
     });
 
     let (minutes_opt, amount_opt) = {
-        let minutes_opt = calc_minutes(&start_time(), &end_time());
+        let minutes_opt = calc_minutes(&start_time(), &end_time(), &rest_time());
         let amount_opt = match (minutes_opt, parse_i32(&hourly_wage())) {
             (Some(mins), Some(wage)) if wage > 0 => Some(wage.saturating_mul(mins) / 60),
             _ => None,
@@ -34,59 +34,62 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "work-record-input",
+        div { class: "flex flex-col gap-4 w-[80vw]",
             h2 { class: "font-bold text-xl", "勤務実績入力" }
 
             // エラー表示
             if !error().is_empty() {
                 div { class: "text-red-600 text-sm", "{error()}" }
             }
-
-            // 日付
-            label { class: "font-medium", "日付" }
-            input {
-                class: "border p-2 rounded",
-                r#type: "date",
-                value: date,
-                oninput: move |e| date.set(e.value()),
+            div { class: "flex flex-row gap-8",
+                // 日付
+                label { class: "font-medium", "日付" }
+                input {
+                    class: "border p-2 rounded w-[15vw]",
+                    r#type: "date",
+                    value: date,
+                    oninput: move |e| date.set(e.value()),
+                }
             }
-
-            // 開始時刻
-            label { class: "font-medium", "開始時間" }
-            input {
-                class: "border p-2 rounded",
-                r#type: "time",
-                value: start_time,
-                oninput: move |e| start_time.set(e.value()),
+            div { class: "flex flex-row gap-4",
+                // 開始時刻
+                label { class: "font-medium", "勤務時間" }
+                input {
+                    class: "border p-2 rounded w-[13vw]",
+                    r#type: "time",
+                    value: start_time,
+                    oninput: move |e| start_time.set(e.value()),
+                }
+                // 終了時刻
+                label { class: "font-medium", "~" }
+                input {
+                    class: "border p-2 rounded w-[13vw]",
+                    r#type: "time",
+                    value: end_time,
+                    oninput: move |e| end_time.set(e.value()),
+                }
             }
-
-            // 終了時刻
-            label { class: "font-medium", "終了時間" }
-            input {
-                class: "border p-2 rounded",
-                r#type: "time",
-                value: end_time,
-                oninput: move |e| end_time.set(e.value()),
+            div { class: "flex flex-row gap-4",
+                // 休憩時間
+                label { class: "font-medium", "休憩時間" }
+                input {
+                    class: "border p-2 rounded w-[13vw]",
+                    r#type: "time",
+                    value: rest_time,
+                    oninput: move |e| rest_time.set(e.value()),
+                }
             }
-
-            // 休憩時間
-            label { class: "font-medium", "休憩時間" }
-            input {
-                class: "border p-2 rounded",
-                r#type: "time",
-                value: rest_time,
-                oninput: move |e| rest_time.set(e.value()),
-            }
-
-            // 時給
-            label { class: "font-medium", "時給（円）" }
-            input {
-                class: "border p-2 rounded",
-                r#type: "number",
-                inputmode: "numeric",
-                placeholder: "例: 1200",
-                value: hourly_wage,
-                oninput: move |e| hourly_wage.set(e.value()),
+            div {
+                // 時給
+                label { class: "font-medium", "時給（円）" }
+                input {
+                    class: "border p-2 rounded w-[15vw]",
+                    r#type: "number",
+                    inputmode: "numeric",
+                    placeholder: "例: 1200",
+                    value: hourly_wage,
+                    oninput: move |e| hourly_wage.set(e.value()),
+                }
             }
 
             // 備考
@@ -141,9 +144,19 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
                             return;
                         }
                         loading.set(true);
-                        match validate(&date(), &start_time(), &end_time(), &hourly_wage()) {
+                        match validate(
+                            &date(),
+                            &start_time(),
+                            &end_time(),
+                            &rest_time(),
+                            &hourly_wage(),
+                        ) {
                             Ok(()) => {
-                                let Some(minutes) = calc_minutes(&start_time(), &end_time()) else {
+                                let Some(minutes) = calc_minutes(
+                                    &start_time(),
+                                    &end_time(),
+                                    &rest_time(),
+                                ) else {
                                     error
                                         .set(
                                             "勤務時間の計算に失敗しました。（終了が開始より前？）"
@@ -190,12 +203,13 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
 }
 
 /// "HH:MM" を分に変換して差分を返す（終了 < 開始 は None）
-fn calc_minutes(start: &str, end: &str) -> Option<i32> {
+fn calc_minutes(start: &str, end: &str, rest_time: &str) -> Option<i32> {
     let (sh, sm) = parse_hhmm(start)?;
     let (eh, em) = parse_hhmm(end)?;
+    let (rh, rm) = parse_hhmm(rest_time)?;
     let s = sh * 60 + sm;
     let e = eh * 60 + em;
-    (e >= s).then_some(e - s)
+    (e >= s).then_some(e - s - (rh * 60 + rm))
 }
 
 /// "HH:MM" -> (時, 分)
@@ -218,7 +232,7 @@ fn parse_i32(s: &str) -> Option<i32> {
     t.parse::<i32>().ok()
 }
 
-fn validate(date: &str, start: &str, end: &str, wage: &str) -> Result<(), String> {
+fn validate(date: &str, start: &str, end: &str, rest_time: &str, wage: &str) -> Result<(), String> {
     if date.trim().is_empty() {
         return Err("日付を入力してください。".into());
     }
@@ -228,7 +242,8 @@ fn validate(date: &str, start: &str, end: &str, wage: &str) -> Result<(), String
         Some(w) if w > 0 => {}
         _ => return Err("時給は正の整数で入力してください。".into()),
     }
-    if calc_minutes(start, end).is_none() {
+    parse_hhmm(rest_time).ok_or_else(|| "休憩時間は HH:MM 形式で入力してください。".to_string())?;
+    if calc_minutes(start, end, rest_time).is_none() {
         return Err("勤務時間が不正です。（終了は開始以降にしてください）".into());
     }
     Ok(())

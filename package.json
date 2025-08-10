@@ -7,8 +7,8 @@
     "tailwindcss": "^4.1.11"
   },
   "scripts": {
-    "tailwind": "tailwindcss -i ./src/styles/tailwind.css -o ./assets/styles.css",
-    "tailwind:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./assets/styles.css --watch",
+    "tailwind": "npx @tailwindcss/cli -i ./assets/tailwind.css -o ./assets/styles.css",
+    "tailwind:watch": "npx @tailwindcss/cli -i ./assets/tailwind.css -o ./assets/styles.css --watch",
     "dev": "concurrently -k \"pnpm:tailwind:watch\" \"cargo tauri dev\""
   }
 }

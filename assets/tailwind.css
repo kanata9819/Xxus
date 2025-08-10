@@ -2,6 +2,51 @@
 @source "./src/**/*.rs";
 
 /* ここから下にカスタムCSSを書く */
+/* Components (plain CSS so it survives without Tailwind at-rules) */
+.modal-panel-dark {
+    background: rgba(15, 23, 42, 0.9); /* slate-900-ish */
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.btn-primary {
+    padding: 0.5rem 0.75rem; /* py-2 px-3 */
+    border-radius: 0.25rem;
+    background-color: #2563eb; /* blue-600 */
+    color: #fff;
+    transition: background-color 150ms ease;
+}
+.btn-primary:hover {
+    background-color: #1d4ed8; /* blue-700 */
+}
+
+.btn-secondary {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    background-color: #e5e7eb; /* gray-200 */
+    color: #0f172a;
+    transition: background-color 150ms ease;
+}
+.btn-secondary:hover {
+    background-color: #d1d5db; /* gray-300 */
+}
+
+.input-base {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.section-title {
+    font-weight: 700; /* bold */
+    font-size: 1.25rem; /* text-xl */
+    line-height: 1.75rem;
+}
 .logo.dioxus:hover {
     filter: drop-shadow(0 0 2em #2076a8);
 }

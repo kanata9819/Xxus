@@ -1,12 +1,12 @@
-use dioxus::prelude::*;
-use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet};
-use shared_types::{CashFlow};
-use tauri_sys::core::invoke;
-use wasm_bindgen_futures::spawn_local;
 use super::input::Inputs;
 use super::list::List;
+use dioxus::prelude::*;
+use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet};
+use shared_types::CashFlow;
+use tauri_sys::core::invoke;
+use wasm_bindgen_futures::spawn_local;
 
-const CSS_PATH: Asset = asset!("/assets/components/home/home.css");
+static CSS_PATH: Asset = asset!("/assets/styles.css");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct HomeSignals {
@@ -54,20 +54,25 @@ pub fn Home() -> Element {
     });
 
     rsx! {
-        MaterialIconStylesheet {}
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "home-container",
+        MaterialIconStylesheet {}
+        div { class: "home-container flex flex-col gap-4 w-[85vw] max-w-[100vw] mx-auto mt-4",
             MaterialIcon { name: "home", size: Some(24) }
             div { class: "budget-container",
-                div { class: "total-container",
-                    h1 { "{total_amount}" }
+                div { class: "total-container modal-panel-dark rounded-lg border border-gray-200 shadow-xl p-4 flex items-center justify-between",
+                    h1 { class: "section-title", "￥{total_amount}" }
                 }
-                div { class: "income-expense-container",
-                    div { class: "expense-container",
-                        h1 { "Expense" }
-                        List { flows: cash_flows.read().to_vec(), target: "ex" }
+                div { class: "income-expense-container flex flex-col lg:flex-row gap-4 min-h-0 h-[65vh]",
+                    div { class: "expense-container modal-panel-dark rounded-lg border border-gray-200 shadow p-4 flex flex-col gap-3 flex-1 min-h-0 h-full",
+                        h1 { class: "font-semibold", "Expense" }
+                        div { class: "overflow-y-auto flex-1 pr-1 min-h-0",
+                            List {
+                                flows: cash_flows.read().to_vec(),
+                                target: "ex",
+                            }
+                        }
                         button {
-                            class: "add-button",
+                            class: "btn-primary self-end",
                             onclick: move |_: MouseEvent| {
                                 disp_ex_input.set(!(disp_ex_input)());
                             },
@@ -77,24 +82,17 @@ pub fn Home() -> Element {
                                 "×"
                             }
                         }
-                        if disp_ex_input() {
-                            div { class: "input-container",
-                                Inputs {
-                                    total: home_strc.total,
-                                    name: home_strc.name,
-                                    amount: home_strc.expense,
-                                    flow_type: "ex",
-                                    parent_need_refresh: need_refresh,
-                                    disp_input: disp_ex_input,
-                                }
+                    }
+                    div { class: "income-container modal-panel-dark rounded-lg border border-gray-200 shadow p-4 flex flex-col gap-3 flex-1 min-h-0 h-full",
+                        h1 { class: "font-semibold", "Income" }
+                        div { class: "overflow-y-auto flex-1 pr-1 min-h-0",
+                            List {
+                                flows: cash_flows.read().to_vec(),
+                                target: "in",
                             }
                         }
-                    }
-                    div { class: "income-container",
-                        h1 { "Income" }
-                        List { flows: cash_flows.read().to_vec(), target: "in" }
                         button {
-                            class: "add-button",
+                            class: "btn-primary self-end",
                             onclick: move |_: MouseEvent| {
                                 disp_in_input.set(!(disp_in_input)());
                             },
@@ -104,15 +102,68 @@ pub fn Home() -> Element {
                                 "×"
                             }
                         }
-                        if disp_in_input() {
-                            div { class: "input-container",
-                                Inputs {
-                                    total: home_strc.total,
-                                    name: home_strc.name,
-                                    amount: home_strc.income,
-                                    flow_type: "in",
-                                    parent_need_refresh: need_refresh,
-                                    disp_input: disp_in_input,
+                    }
+                }
+                // Overlays
+                if disp_ex_input() {
+                    Fragment {
+                        // backdrop
+                        div {
+                            class: "fixed inset-0 bg-black/40 backdrop-blur-[1px] z-40",
+                            onclick: move |_| disp_ex_input.set(false),
+                        }
+                        // modal panel
+                        div { class: "fixed inset-0 z-50 flex items-center justify-center",
+                            div { class: "pointer-events-auto modal-panel-dark rounded-lg shadow-xl w-[90vw] max-w-[640px] max-h-[85vh] overflow-hidden border border-gray-200",
+                                div { class: "flex items-center justify-between px-4 py-2 border-b",
+                                    h3 { class: "font-semibold", "Expense の追加" }
+                                    button {
+                                        class: "text-gray-500 hover:text-gray-700 text-xl leading-none",
+                                        onclick: move |_| disp_ex_input.set(false),
+                                        "×"
+                                    }
+                                }
+                                div { class: "p-4 overflow-y-auto max-h-[75vh]",
+                                    Inputs {
+                                        total: home_strc.total,
+                                        name: home_strc.name,
+                                        amount: home_strc.expense,
+                                        flow_type: "ex",
+                                        parent_need_refresh: need_refresh,
+                                        disp_input: disp_ex_input,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if disp_in_input() {
+                    Fragment {
+                        // backdrop
+                        div {
+                            class: "fixed inset-0 bg-black/40 backdrop-blur-[1px] z-40",
+                            onclick: move |_| disp_in_input.set(false),
+                        }
+                        // modal panel
+                        div { class: "fixed inset-0 z-50 flex items-center justify-center",
+                            div { class: "pointer-events-auto modal-panel-dark rounded-lg shadow-xl w-[90vw] max-w-[640px] max-h-[85vh] overflow-hidden border border-gray-200",
+                                div { class: "flex items-center justify-between px-4 py-2 border-b",
+                                    h3 { class: "font-semibold", "Income の追加" }
+                                    button {
+                                        class: "text-gray-500 hover:text-gray-700 text-xl leading-none",
+                                        onclick: move |_| disp_in_input.set(false),
+                                        "×"
+                                    }
+                                }
+                                div { class: "p-4 overflow-y-auto max-h-[75vh]",
+                                    Inputs {
+                                        total: home_strc.total,
+                                        name: home_strc.name,
+                                        amount: home_strc.income,
+                                        flow_type: "in",
+                                        parent_need_refresh: need_refresh,
+                                        disp_input: disp_in_input,
+                                    }
                                 }
                             }
                         }
