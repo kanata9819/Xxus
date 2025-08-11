@@ -40,6 +40,7 @@ pub fn WorkScheduleRoute() -> Element {
 
 async fn handle_load() {
     invoke::<bool>("init_work_schedule_db", &()).await;
+    invoke::<bool>("init_default_value_db", &()).await;
 }
 
 async fn handle_submit(props: WorkRecord) {

@@ -23,4 +23,5 @@ pub fn Settings() -> Element {
 
 async fn delete_whole_data() {
     invoke::<()>("delete_whole_data", &json!({})).await;
+    invoke::<()>("delete_work_schedule_data", &json!({})).await;
 }

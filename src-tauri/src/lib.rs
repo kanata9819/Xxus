@@ -46,6 +46,11 @@ async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
   ws::add_work_schedule(props).await
 }
 
+#[tauri::command]
+async fn delete_work_schedule_data( ) -> Result<(), String> {
+    ws::delete_work_schedule_data().await
+}
+
 //===============WORKSCHEDULEDEFAULTVALUE=================================
 #[tauri::command]
 async fn init_default_value_db() -> bool {
@@ -74,7 +79,8 @@ pub fn run() {
             init_work_schedule_db,
             add_work_schedule,
             init_default_value_db,
-            add_default_work_schedule
+            add_default_work_schedule,
+            delete_work_schedule_data
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

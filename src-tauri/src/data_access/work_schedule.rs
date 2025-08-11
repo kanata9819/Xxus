@@ -33,3 +33,9 @@ pub async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
     .map_err(|e| e.to_string())?;
     Ok(true)
 }
+
+pub async fn delete_work_schedule_data() -> Result<(), String> {
+    let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM work_schedule", ()).map_err(|e| e.to_string())?;
+    Ok(())
+}
