@@ -12,7 +12,7 @@ pub fn MainLayout() -> Element {
 
         div { class: "app-root",
             div { class: "sidebar", Sidebar {} }
-            div { class: "main-container", Outlet::<AppRoute> {} }
+            div { class: "main-container", style: "padding-top: 5vh;", Outlet::<AppRoute> {} }
         }
     }
 }

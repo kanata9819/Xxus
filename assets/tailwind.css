@@ -258,7 +258,7 @@ button {
 
 .main-container {
     margin-left: 12vw;
-    min-height: 100vh;
+    min-height: 10vh;
     background: transparent;
     padding: 0;
     flex: 1;

@@ -44,11 +44,11 @@ pub async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
 }
 
 pub async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
-    let date: chrono::DateTime<Local> = Local::now();
+    let date: String = Local::now().format("%Y-%m-%d").to_string();
     let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
     conn.execute(
         "INSERT INTO cash_flow (amount, name, flow, created_at) VALUES (?1, ?2, ?3, ?4)",
-        rusqlite::params![props.amount, props.name, props.flow_type, date.to_string()],
+        rusqlite::params![props.amount, props.name, props.flow_type, date],
     )
     .map_err(|e| e.to_string())?;
     Ok(true)

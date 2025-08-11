@@ -17,9 +17,9 @@ pub fn WorkScheduleRoute() -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "flex flex-col gap-4 w-[80vw] mt-[5vh]",
+        div { class: "flex flex-col gap-4 w-[80vw] pt-4",
             // ヘッダー操作
-            div { class: "flex flex-row gap-4 items-center",
+            div { class: "flex flex-row gap-4 items-center mt-2",
                 button {
                     class: "px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white w-[15vw]",
                     onclick: move |_| show_settings.set(true),
