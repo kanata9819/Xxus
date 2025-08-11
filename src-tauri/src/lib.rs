@@ -1,6 +1,6 @@
 mod data_access;
 
-use data_access::{data_access as dac, work_schedule as ws};
+use data_access::{data_access as dac, work_schedule as ws, setting_default_value as sdv};
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
 
 #[tauri::command]
@@ -46,6 +46,19 @@ async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
   ws::add_work_schedule(props).await
 }
 
+//===============WORKSCHEDULEDEFAULTVALUE=================================
+#[tauri::command]
+async fn init_default_value_db() -> bool {
+  match sdv::init_default_value_db().await {
+      Ok(_) => true,
+      Err(_) => false,
+  }
+}
+
+#[tauri::command]
+async fn add_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
+    sdv::add_default_work_schedule(props).await
+}
 
 //===============CORE=========================================
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -59,7 +72,9 @@ pub fn run() {
             init_db,
             delete_whole_data,
             init_work_schedule_db,
-            add_work_schedule
+            add_work_schedule,
+            init_default_value_db,
+            add_default_work_schedule
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
