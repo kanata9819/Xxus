@@ -11,6 +11,8 @@ static CSS_PATH: Asset = asset!("/assets/styles.css");
 pub fn WorkScheduleRoute() -> Element {
     // オーバレイ（初期値設定）表示フラグ
     let mut show_settings: Signal<bool> = use_signal(|| false);
+    // トースト（メッセージ, is_error）
+    let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     use_future(move || async move {
         handle_load().await;
     });
@@ -28,11 +30,49 @@ pub fn WorkScheduleRoute() -> Element {
             }
 
             // メイン（常に表示）
-            WorkSchedule { on_submit: handle_submit }
+            WorkSchedule {
+                on_submit: move |props: WorkRecord| {
+                    let mut toast_set = toast.clone();
+                    spawn(async move {
+                        let ok: bool = invoke::<
+                            bool,
+                        >("add_work_schedule", &serde_json::json!({ "props" : props }))
+                            .await;
+                        if ok {
+                            toast_set.set(Some(("登録に成功しました".to_string(), false)));
+                        } else {
+                            toast_set.set(Some(("登録に失敗しました".to_string(), true)));
+                        }
+                    });
+                },
+            }
+
+            // トースト表示
+            match toast() {
+                Some((ref msg, _is_err)) => rsx! {
+                    div { class: "fixed bottom-4 right-4 z-50",
+                        div { class: "modal-panel-dark border rounded shadow px-4 py-2 flex items-center gap-3",
+                            span { class: "text-sm", "{msg}" }
+                            button {
+                                class: "text-gray-500 hover:text-gray-300",
+                                onclick: move |_| toast.set(None),
+                                "×"
+                            }
+                        }
+                    }
+                },
+                None => rsx! {},
+            }
 
             // オーバレイ（初期値設定）
             if show_settings() {
-                Overlay { show_settings: show_settings.clone() }
+                Overlay {
+                    show_settings: show_settings.clone(),
+                    on_toast: move |(msg, is_err): (String, bool)| {
+                        let mut t = toast.clone();
+                        t.set(Some((msg, is_err)));
+                    }
+                }
             }
         }
     }
@@ -43,6 +83,4 @@ async fn handle_load() {
     invoke::<bool>("init_default_value_db", &()).await;
 }
 
-async fn handle_submit(props: WorkRecord) {
-    invoke::<bool>("add_work_schedule", &serde_json::json!({"props": props})).await;
-}
+// 提供していた submit はトースト対応のため上位で非同期クロージャに置換済み

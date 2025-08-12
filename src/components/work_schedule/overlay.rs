@@ -6,7 +6,7 @@ use tauri_sys::core::invoke;
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
 #[component]
-pub fn Overlay(show_settings: Signal<bool>) -> Element {
+pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool)>) -> Element {
     let mut show_settings = show_settings.clone();
 
     rsx! {
@@ -31,7 +31,25 @@ pub fn Overlay(show_settings: Signal<bool>) -> Element {
                     }
                     // コンテンツ（スクロール可）
                     div { class: "p-4 overflow-y-auto max-h-[75vh]",
-                        SettingDefaultValue { on_submit: handle_submit_setting }
+                        SettingDefaultValue {
+                            on_submit: move |record: WorkRecord| {
+                                let on_toast = on_toast.clone();
+                                let mut show = show_settings.clone();
+                                spawn(async move {
+                                    let ok: bool = invoke::<
+                                        bool,
+                                    >("add_defaule_work_schedule", &serde_json::json!({ "props" : record }))
+                                        .await;
+                                    if ok {
+                                        on_toast.call(("初期値を保存しました".to_string(), false));
+                                        show.set(false);
+                                    } else {
+                                        on_toast
+                                            .call(("初期値の保存に失敗しました".to_string(), true));
+                                    }
+                                });
+                            },
+                        }
                     }
                 }
             }
@@ -39,10 +57,3 @@ pub fn Overlay(show_settings: Signal<bool>) -> Element {
     }
 }
 
-async fn handle_submit_setting(props: WorkRecord) {
-    invoke::<bool>(
-        "add_defaule_work_schedule",
-        &serde_json::json!({"props": props}),
-    )
-    .await;
-}
