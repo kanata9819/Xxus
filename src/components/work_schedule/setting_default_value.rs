@@ -1,5 +1,6 @@
 use dioxus::{prelude::*};
 use shared_types::WorkRecord;
+use tauri_sys::core::invoke;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
@@ -13,10 +14,13 @@ pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
     let mut loading: Signal<bool> = use_signal(|| false);
 
     use_effect(move || {
-        start_time.set("09:00".to_string());
-        end_time.set("18:00".to_string());
-        rest_time.set("01:00".to_string());
-        hourly_wage.set("1200".to_string());
+        spawn(async move {
+            let default: WorkRecord = invoke::<WorkRecord>("get_default_work_schedule", &serde_json::json!({})).await;
+            start_time.set(default.start_time);
+            end_time.set(default.end_time);
+            rest_time.set(default.rest_time);
+            hourly_wage.set(default.hourly_wage.to_string());
+        });
     });
 
     let (minutes_opt, amount_opt) = {

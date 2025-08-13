@@ -26,19 +26,19 @@ pub async fn init_default_value_db() -> Result<Connection> {
 
 pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
     let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
-    let mut stmt = conn.prepare("SELECT * FROM work_schedule_default_values LIMIT 1").map_err(|e| e.to_string())?;
+    let mut stmt = conn.prepare("SELECT date, start_time, end_time, hourly_wage, rest_time, minutes, amount, note FROM work_schedule_default_values LIMIT 1").map_err(|e| e.to_string())?;
     let mut rows = stmt.query([]).map_err(|e| e.to_string())?;
 
     if let Some(row) = rows.next().map_err(|e| e.to_string())? {
         Ok(WorkRecord {
-            date: row.get(1).map_err(|e| e.to_string())?,
-            start_time: row.get(2).map_err(|e| e.to_string())?,
-            end_time: row.get(3).map_err(|e| e.to_string())?,
+            date: row.get(0).map_err(|e| e.to_string())?,
+            start_time: row.get(1).map_err(|e| e.to_string())?,
+            end_time: row.get(2).map_err(|e| e.to_string())?,
+            hourly_wage: row.get(3).map_err(|e| e.to_string())?,
             rest_time: row.get(4).map_err(|e| e.to_string())?,
-            hourly_wage: row.get(5).map_err(|e| e.to_string())?,
-            minutes: row.get(6).map_err(|e| e.to_string())?,
-            amount: row.get(7).map_err(|e| e.to_string())?,
-            note: row.get(8).map_err(|e| e.to_string())?,
+            minutes: row.get(5).map_err(|e| e.to_string())?,
+            amount: row.get(6).map_err(|e| e.to_string())?,
+            note: row.get(7).map_err(|e| e.to_string())?,
         })
     } else {
         Err("No default work schedule found".to_string())
@@ -46,8 +46,12 @@ pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
 }
 
 pub async fn update_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
-    delete_default_work_schedule().await.map_err(|e| e.to_string())?;
-    add_default_work_schedule(props).await.map_err(|e| e.to_string())?;
+    delete_default_work_schedule()
+        .await
+        .map_err(|e| e.to_string())?;
+    add_default_work_schedule(props)
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(true)
 }
 

@@ -25,7 +25,7 @@ pub fn CalcHourlyWage() -> Element {
                 h2 { class: "font-bold text-xl", "時給計算" }
 
                 // 勤務時間入力
-                div { class: "flex flex-col gap-2",
+                div { class: "flex flex-col gap-2 items-center",
                     label { class: "text-sm opacity-80", "勤務時間（合計時間[h]）" }
                     input {
                         class: "border p-2 rounded w-[10vw]",

@@ -23,7 +23,7 @@ pub fn WorkScheduleRoute() -> Element {
             // ヘッダー操作
             div { class: "flex flex-row gap-4 items-center mt-2",
                 button {
-                    class: "px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white w-[10vw]",
+                    class: "px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white w-[12vw] h-[7vh]",
                     onclick: move |_| show_settings.set(true),
                     "初期値設定"
                 }

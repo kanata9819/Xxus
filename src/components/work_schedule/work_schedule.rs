@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use chrono::prelude::*;
+use tauri_sys::core::invoke;
 use super::calc_hourly_wage::CalcHourlyWage;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
@@ -18,12 +19,15 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
 
     use_effect(move || {
         let default_date: String = Local::now().format("%Y-%m-%d").to_string();
-        date.set(default_date);
-        start_time.set("09:00".to_string());
-        end_time.set("18:00".to_string());
-        rest_time.set("01:00".to_string());
-        hourly_wage.set("1200".to_string());
-        note.set("".to_string());
+        spawn(async move {
+            let default: WorkRecord = invoke::<WorkRecord>("get_default_work_schedule", &serde_json::json!({})).await;
+            date.set(default_date);
+            start_time.set(default.start_time);
+            end_time.set(default.end_time);
+            rest_time.set(default.rest_time);
+            hourly_wage.set(default.hourly_wage.to_string());
+            note.set(default.note);
+        });
     });
 
     let (minutes_opt, amount_opt) = {
