@@ -10,6 +10,7 @@ struct NavItemInfo {
     pub name: &'static str,
     pub icon: Option<&'static str>,
     pub handle_click: EventHandler<MouseEvent>,
+    pub active: bool,
 }
 
 #[component]
@@ -17,7 +18,7 @@ fn NavItem(props: NavItemInfo) -> Element {
     rsx!(
         button {
             id: props.name,
-            class: "sidebar-button",
+        class: if props.active { "sidebar-button active" } else { "sidebar-button" },
             onclick: props.handle_click,
             icon: props.icon,
             MaterialIcon { name: props.name, size: Some(24) }
@@ -28,6 +29,7 @@ fn NavItem(props: NavItemInfo) -> Element {
 #[component]
 pub fn Sidebar() -> Element {
     let nav: Navigator = use_navigator();
+    let current: AppRoute = use_route::<AppRoute>();
 
     rsx! {
         MaterialIconStylesheet {}
@@ -36,14 +38,17 @@ pub fn Sidebar() -> Element {
             div { class: "button-container",
                 NavItem {
                     name: "home",
+                    active: current == AppRoute::Home,
                     handle_click: move |_| navigate(&nav, AppRoute::Home),
                 }
                 NavItem {
                     name: "work",
+                    active: current == AppRoute::WorkScheduleRoute,
                     handle_click: move |_| navigate(&nav, AppRoute::WorkScheduleRoute),
                 }
                 NavItem {
                     name: "settings",
+                    active: current == AppRoute::Settings,
                     handle_click: move |_| navigate(&nav, AppRoute::Settings),
                 }
             }
