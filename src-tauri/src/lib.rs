@@ -61,8 +61,13 @@ async fn init_default_value_db() -> bool {
 }
 
 #[tauri::command]
-async fn add_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
-    sdv::add_default_work_schedule(props).await
+async fn update_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
+    sdv::update_default_work_schedule(props).await
+}
+
+#[tauri::command]
+async fn get_default_work_schedule() -> Result<WorkRecord, String> {
+    sdv::get_default_work_schedule().await
 }
 
 //===============CORE=========================================
@@ -79,8 +84,9 @@ pub fn run() {
             init_work_schedule_db,
             add_work_schedule,
             init_default_value_db,
-            add_default_work_schedule,
-            delete_work_schedule_data
+            update_default_work_schedule,
+            delete_work_schedule_data,
+            get_default_work_schedule
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

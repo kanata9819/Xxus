@@ -38,7 +38,7 @@ pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool
                                 spawn(async move {
                                     let ok: bool = invoke::<
                                         bool,
-                                    >("add_defaule_work_schedule", &serde_json::json!({ "props" : record }))
+                                    >("update_default_work_schedule", &serde_json::json!({ "props" : record }))
                                         .await;
                                     if ok {
                                         on_toast.call(("初期値を保存しました".to_string(), false));

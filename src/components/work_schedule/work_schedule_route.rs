@@ -71,7 +71,7 @@ pub fn WorkScheduleRoute() -> Element {
                     on_toast: move |(msg, is_err): (String, bool)| {
                         let mut t = toast.clone();
                         t.set(Some((msg, is_err)));
-                    }
+                    },
                 }
             }
         }
@@ -82,5 +82,3 @@ async fn handle_load() {
     invoke::<bool>("init_work_schedule_db", &()).await;
     invoke::<bool>("init_default_value_db", &()).await;
 }
-
-// 提供していた submit はトースト対応のため上位で非同期クロージャに置換済み
