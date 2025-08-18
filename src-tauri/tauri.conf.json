@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "xxus",
+        "title": "xxus 0.1.0",
         "width": 1200,
         "height": 750,
         "maximized": true
