@@ -1,14 +1,12 @@
 mod data_access;
 
-use data_access::{data_access as dac, work_schedule as ws, setting_default_value as sdv};
+use data_access::{data_access as dac, work_schedule as ws, setting_default_value as sdv, init_pool};
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
 
 #[tauri::command]
 async fn init_db() -> bool {
-    match dac::init_db().await {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    if init_pool().await.is_err() { return false; }
+    dac::init_db().await.is_ok()
 }
 
 //==============HOME==================================
@@ -35,10 +33,8 @@ async fn delete_whole_data() -> Result<(), String> {
 //===============WORKSCHEDULE=================================
 #[tauri::command]
 async fn init_work_schedule_db() -> bool {
-    match ws::init_db().await {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    if init_pool().await.is_err() { return false; }
+    ws::init_db().await.is_ok()
 }
 
 #[tauri::command]
@@ -54,10 +50,8 @@ async fn delete_work_schedule_data( ) -> Result<(), String> {
 //===============WORKSCHEDULEDEFAULTVALUE=================================
 #[tauri::command]
 async fn init_default_value_db() -> bool {
-  match sdv::init_default_value_db().await {
-      Ok(_) => true,
-      Err(_) => false,
-  }
+    if init_pool().await.is_err() { return false; }
+    sdv::init_default_value_db().await.is_ok()
 }
 
 #[tauri::command]

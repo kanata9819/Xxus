@@ -1,44 +1,40 @@
-use rusqlite::{Connection, Result};
 use shared_types::WorkRecord;
+use crate::data_access::pool;
+use sqlx::{Executor, Row};
 
-const DB_NAME: &str = "xxus.db";
-
-pub async fn init_default_value_db() -> Result<Connection> {
-    let conn: Connection = Connection::open(DB_NAME)?;
-
-    conn.execute_batch(
-        r#"
-        CREATE TABLE IF NOT EXISTS  work_schedule_default_values(
+pub async fn init_default_value_db() -> Result<(), String> {
+    let ddl = r#"
+        CREATE TABLE IF NOT EXISTS work_schedule_default_values (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             date        TEXT    NOT NULL,
             start_time  TEXT    NOT NULL,
             end_time    TEXT    NOT NULL,
-            hourly_wage NUMBER  NOT NULL,
+            hourly_wage INTEGER  NOT NULL,
             rest_time   TEXT    NOT NULL,
-            minutes     NUMBER  NOT NULL,
-            amount      NUMBER  NOT NULL,
+            minutes     INTEGER  NOT NULL,
+            amount      INTEGER  NOT NULL,
             note        TEXT
         );
-    "#,
-    )?;
-    Ok(conn)
+    "#;
+    pool().execute(sqlx::query(ddl)).await.map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
-    let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
-    let mut stmt = conn.prepare("SELECT date, start_time, end_time, hourly_wage, rest_time, minutes, amount, note FROM work_schedule_default_values LIMIT 1").map_err(|e| e.to_string())?;
-    let mut rows = stmt.query([]).map_err(|e| e.to_string())?;
-
-    if let Some(row) = rows.next().map_err(|e| e.to_string())? {
+    let row_opt = sqlx::query("SELECT date, start_time, end_time, hourly_wage, rest_time, minutes, amount, note FROM work_schedule_default_values LIMIT 1")
+        .fetch_optional(pool())
+        .await
+        .map_err(|e| e.to_string())?;
+    if let Some(r) = row_opt {
         Ok(WorkRecord {
-            date: row.get(0).map_err(|e| e.to_string())?,
-            start_time: row.get(1).map_err(|e| e.to_string())?,
-            end_time: row.get(2).map_err(|e| e.to_string())?,
-            hourly_wage: row.get(3).map_err(|e| e.to_string())?,
-            rest_time: row.get(4).map_err(|e| e.to_string())?,
-            minutes: row.get(5).map_err(|e| e.to_string())?,
-            amount: row.get(6).map_err(|e| e.to_string())?,
-            note: row.get(7).map_err(|e| e.to_string())?,
+            date: r.get::<String, _>(0),
+            start_time: r.get::<String, _>(1),
+            end_time: r.get::<String, _>(2),
+            hourly_wage: r.get::<i64, _>(3) as i32,
+            rest_time: r.get::<String, _>(4),
+            minutes: r.get::<i64, _>(5) as i32,
+            amount: r.get::<i64, _>(6) as i32,
+            note: r.get::<String, _>(7),
         })
     } else {
         Err("No default work schedule found".to_string())
@@ -46,28 +42,31 @@ pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
 }
 
 pub async fn update_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
-    delete_default_work_schedule()
-        .await
-        .map_err(|e| e.to_string())?;
-    add_default_work_schedule(props)
-        .await
-        .map_err(|e| e.to_string())?;
+    delete_default_work_schedule().await?;
+    add_default_work_schedule(props).await?;
     Ok(true)
 }
 
 async fn add_default_work_schedule(props: WorkRecord) -> Result<bool, String> {
-    let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
-    conn.execute(
-        "INSERT INTO work_schedule_default_values (date, start_time, end_time, rest_time, hourly_wage, minutes, amount, note) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-        rusqlite::params![props.date, props.start_time, props.end_time, props.rest_time, props.hourly_wage, props.minutes, props.amount, props.note],
-    )
-    .map_err(|e| e.to_string())?;
+    sqlx::query("INSERT INTO work_schedule_default_values (date, start_time, end_time, rest_time, hourly_wage, minutes, amount, note) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)")
+        .bind(props.date)
+        .bind(props.start_time)
+        .bind(props.end_time)
+        .bind(props.rest_time)
+        .bind(props.hourly_wage)
+        .bind(props.minutes)
+        .bind(props.amount)
+        .bind(props.note)
+        .execute(pool())
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(true)
 }
 
 async fn delete_default_work_schedule() -> Result<bool, String> {
-    let conn = Connection::open(DB_NAME).map_err(|e| e.to_string())?;
-    conn.execute("DELETE FROM work_schedule_default_values", [])
+    sqlx::query("DELETE FROM work_schedule_default_values")
+        .execute(pool())
+        .await
         .map_err(|e| e.to_string())?;
     Ok(true)
 }
