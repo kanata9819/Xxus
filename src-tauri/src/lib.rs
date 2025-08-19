@@ -30,6 +30,11 @@ async fn delete_whole_data() -> Result<(), String> {
     dac::delete_whole_data().await
 }
 
+#[tauri::command]
+async fn delete_specific_data(id: i32) -> Result<bool, String> {
+    dac::delete_specific_data(id).await
+}
+
 //===============WORKSCHEDULE=================================
 #[tauri::command]
 async fn init_work_schedule_db() -> bool {
@@ -80,7 +85,8 @@ pub fn run() {
             init_default_value_db,
             update_default_work_schedule,
             delete_work_schedule_data,
-            get_default_work_schedule
+            get_default_work_schedule,
+            delete_specific_data
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

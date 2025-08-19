@@ -1,17 +1,17 @@
+use crate::data_access::pool;
 use chrono::Local;
 use shared_types::{AddCashFlowProps, CashFlow};
-use crate::data_access::pool;
 use sqlx::{Executor, Row};
 
 pub async fn init_db() -> Result<(), String> {
     // Ensure pool initialized outside (lib.rs) before calling.
     let ddl = r#"
         CREATE TABLE IF NOT EXISTS cash_flow (
-            id      INTEGER PRIMARY KEY AUTOINCREMENT,
-            amount  INTEGER NOT NULL,
-            name    TEXT    NOT NULL,
-            flow    TEXT    NOT NULL,
-            date    TEXT    NOT NULL
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            amount      INTEGER NOT NULL,
+            name        TEXT    NOT NULL,
+            flow        TEXT    NOT NULL,
+            created_at  TEXT    NOT NULL
         );
     "#;
     pool()
@@ -22,7 +22,7 @@ pub async fn init_db() -> Result<(), String> {
 }
 
 pub async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
-    let rows = sqlx::query("SELECT id, amount, name, flow, date FROM cash_flow")
+    let rows = sqlx::query("SELECT id, amount, name, flow, created_at FROM cash_flow")
         .fetch_all(pool())
         .await
         .map_err(|e| e.to_string())?;
@@ -33,7 +33,7 @@ pub async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
             amount: r.get::<i64, _>(1) as i32,
             name: r.get::<String, _>(2),
             flow: r.get::<String, _>(3),
-            date: r.get::<String, _>(4),
+            created_at: r.get::<String, _>(4),
         })
         .collect();
     Ok(data)
@@ -41,9 +41,7 @@ pub async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
 
 pub async fn add_cash_flow(props: AddCashFlowProps) -> Result<bool, String> {
     let date: String = Local::now().format("%Y-%m-%d").to_string();
-    sqlx::query(
-        "INSERT INTO cash_flow (amount, name, flow, date) VALUES (?1, ?2, ?3, ?4)"
-    )
+    sqlx::query("INSERT INTO cash_flow (amount, name, flow, created_at) VALUES (?1, ?2, ?3, ?4)")
         .bind(props.amount)
         .bind(props.name)
         .bind(props.flow_type)
@@ -60,4 +58,13 @@ pub async fn delete_whole_data() -> Result<(), String> {
         .await
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+pub async fn delete_specific_data(id: i32) -> Result<bool, String> {
+    sqlx::query("DELETE FROM cash_flow WHERE id = ?1")
+        .bind(id)
+        .execute(pool())
+        .await
+        .map(|result| result.rows_affected() > 0)
+        .map_err(|e| e.to_string())
 }

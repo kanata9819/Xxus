@@ -18,7 +18,7 @@ fn NavItem(props: NavItemInfo) -> Element {
     rsx!(
         button {
             id: props.name,
-        class: if props.active { "sidebar-button active" } else { "sidebar-button" },
+            class: if props.active { "sidebar-button active" } else { "sidebar-button" },
             onclick: props.handle_click,
             icon: props.icon,
             MaterialIcon { name: props.name, size: Some(24) }

@@ -6,7 +6,7 @@ pub struct CashFlow {
     pub amount: i32,
     pub name: String,
     pub flow: String,
-    pub date: String,
+    pub created_at: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
