@@ -1,10 +1,11 @@
 use super::input::Inputs;
 use super::list::List;
-use dioxus::prelude::*;
+use dioxus::{prelude::*};
 use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet};
 use shared_types::CashFlow;
 use tauri_sys::core::invoke;
 use wasm_bindgen_futures::spawn_local;
+use serde_json;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
@@ -67,8 +68,15 @@ pub fn Home() -> Element {
                         h1 { class: "font-semibold", "Expense" }
                         div { class: "overflow-y-auto flex-1 pr-1 min-h-0",
                             List {
-                                flows: cash_flows.read().to_vec(),
+                                flows: cash_flows,
                                 target: "ex",
+                                handle_delete_evt: {
+                                    move |id: i32| {
+                                        spawn_local(async move {
+                                            handle_delete(id, home_strc.clone()).await;
+                                        });
+                                    }
+                                },
                             }
                         }
                         button {
@@ -87,8 +95,15 @@ pub fn Home() -> Element {
                         h1 { class: "font-semibold", "Income" }
                         div { class: "overflow-y-auto flex-1 pr-1 min-h-0",
                             List {
-                                flows: cash_flows.read().to_vec(),
+                                flows: cash_flows,
                                 target: "in",
+                                handle_delete_evt: {
+                                    move |id: i32| {
+                                        spawn_local(async move {
+                                            handle_delete(id, home_strc.clone()).await;
+                                        });
+                                    }
+                                },
                             }
                         }
                         button {
@@ -219,4 +234,16 @@ fn set_amount(mut home_strc: HomeSignals) {
     home_strc.total.set(total);
     home_strc.expense.set(expense);
     home_strc.income.set(income);
+}
+
+async fn handle_delete(id: i32, home_strc_props: HomeSignals) {
+    let result: bool = delete_specific_data(id).await;
+
+    if result {
+        handle_load(home_strc_props).await;
+    }
+}
+
+async fn delete_specific_data(id: i32) -> bool {
+    invoke::<bool>("delete_specific_data", &serde_json::json!({ "id": id })).await
 }
