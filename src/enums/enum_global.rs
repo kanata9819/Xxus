@@ -16,6 +16,7 @@ pub enum AppRoute {
     WorkScheduleRoute,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FlowType {
     Income,
