@@ -35,9 +35,27 @@ pub fn List(props: ListProps) -> Element {
                                 let flow_created: String = flow.created_at.clone();
                                 let flow_amount: i32 = flow.amount;
                                 let is_active: bool = selected_id().map(|id| id == fid).unwrap_or(false);
+                                let li_class: &str = if flow_type == "in" {
+                                    if is_active {
+                                        "income-item active group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-emerald-400/50 bg-emerald-500/10 hover:bg-emerald-500/20 ring-1 ring-emerald-400 shadow-sm transition-colors duration-200"
+                                    } else {
+                                        "income-item group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-white/15 bg-white/5 hover:bg-emerald-500/10 hover:border-emerald-400/40 shadow-sm transition-colors duration-200"
+                                    }
+                                } else {
+                                    if is_active {
+                                        "expense-item active group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-rose-400/50 bg-rose-500/10 hover:bg-rose-500/20 ring-1 ring-rose-400 shadow-sm transition-colors duration-200"
+                                    } else {
+                                        "expense-item group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-white/15 bg-white/5 hover:bg-rose-500/10 hover:border-rose-400/40 shadow-sm transition-colors duration-200"
+                                    }
+                                };
+                                let amount_class: &str = if flow_type == "in" {
+                                    "amount text-emerald-400 font-semibold tracking-wide text-sm md:text-base"
+                                } else {
+                                    "amount text-rose-400 font-semibold tracking-wide text-sm md:text-base"
+                                };
                                 rsx! {
                                     li {
-                                        class: if flow_type == "in" { if is_active { "income-item active" } else { "income-item" } } else { if is_active { "expense-item active" } else { "expense-item" } },
+                                        class: "{li_class}",
                                         onclick: {
                                             let mut selected_id_sig: Signal<Option<i32>> = selected_id.clone();
                                             move |_| {
@@ -51,14 +69,16 @@ pub fn List(props: ListProps) -> Element {
                                             }
                                         },
                                         div { class: "item-details",
-                                            div { class: "name", "{flow_name}" }
-                                            div { class: "date", "{flow_created}" }
+                                            div { class: "name font-medium text-slate-100 text-sm md:text-base leading-tight",
+                                                "{flow_name}"
+                                            }
+                                            div { class: "date text-[11px] md:text-xs text-slate-400 tracking-wide", "{flow_created}" }
                                         }
-                                        div { class: "amount", "{flow_amount}" }
+                                        div { class: "{amount_class}", "{flow_amount}" }
                                         if is_active {
-                                            div { class: "flex gap-2 ml-2 items-center",
+                                            div { class: "flex gap-2 ml-2 items-center animate-in fade-in duration-200",
                                                 button {
-                                                    class: "px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-700 text-white",
+                                                    class: "px-2 py-1 text-[10px] md:text-xs rounded-md font-medium bg-red-500/90 hover:bg-red-500 text-white shadow-sm hover:shadow ring-1 ring-red-400/40 transition active:scale-[0.97]",
                                                     onclick: move |_| {
                                                         (props.handle_delete_evt)(fid);
                                                     },
