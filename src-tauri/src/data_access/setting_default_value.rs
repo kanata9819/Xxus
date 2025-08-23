@@ -27,15 +27,14 @@ pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
         .map_err(|e| e.to_string())?;
     if let Some(r) = row_opt {
         Ok(WorkRecord {
-            id: r.get::<i64, _>(0) as i32,
-            date: r.get::<String, _>(1),
-            start_time: r.get::<String, _>(2),
-            end_time: r.get::<String, _>(3),
-            hourly_wage: r.get::<i64, _>(4) as i32,
-            rest_time: r.get::<String, _>(5),
-            minutes: r.get::<i64, _>(6) as i32,
-            amount: r.get::<i64, _>(7) as i32,
-            note: r.get::<String, _>(8),
+            date: r.get::<String, _>(0),
+            start_time: r.get::<String, _>(1),
+            end_time: r.get::<String, _>(2),
+            hourly_wage: r.get::<i64, _>(3) as i32,
+            rest_time: r.get::<String, _>(4),
+            minutes: r.get::<i64, _>(5) as i32,
+            amount: r.get::<i64, _>(6) as i32,
+            note: r.get::<String, _>(7),
         })
     } else {
         Err("No default work schedule found".to_string())

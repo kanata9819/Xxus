@@ -30,6 +30,7 @@ dotenv = "0.15.0"
 sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls"] }
 shared-types = { path = "../shared-types" }
 chrono = "0.4.41"
+dirs = "5"
 
 [features]
 ssr = []

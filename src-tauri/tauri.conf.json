@@ -16,11 +16,12 @@
                 "title": "xxus 0.1.0",
                 "width": 1200,
                 "height": 750,
-                "maximized": true
+                "maximized": true,
+                "devtools": true
             }
         ],
         "security": {
-            "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' https: http: ws: wss: ipc: tauri:;"
+            "csp": "default-src 'self'; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' https: http: ws: wss: ipc: tauri:;"
         }
     },
     "bundle": {

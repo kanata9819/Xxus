@@ -1,11 +1,15 @@
 mod data_access;
 
-use data_access::{data_access as dac, work_schedule as ws, setting_default_value as sdv, init_pool};
+use data_access::{
+    data_access as dac, init_pool, setting_default_value as sdv, work_schedule as ws,
+};
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
 
 #[tauri::command]
 async fn init_db() -> bool {
-    if init_pool().await.is_err() { return false; }
+    if init_pool().await.is_err() {
+        return false;
+    }
     dac::init_db().await.is_ok()
 }
 
@@ -38,17 +42,19 @@ async fn delete_specific_data(id: i32) -> Result<bool, String> {
 //===============WORKSCHEDULE=================================
 #[tauri::command]
 async fn init_work_schedule_db() -> bool {
-    if init_pool().await.is_err() { return false; }
+    if init_pool().await.is_err() {
+        return false;
+    }
     ws::init_db().await.is_ok()
 }
 
 #[tauri::command]
 async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
-  ws::add_work_schedule(props).await
+    ws::add_work_schedule(props).await
 }
 
 #[tauri::command]
-async fn delete_work_schedule_data( ) -> Result<(), String> {
+async fn delete_work_schedule_data() -> Result<(), String> {
     ws::delete_work_schedule_data().await
 }
 
@@ -60,7 +66,9 @@ async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, bool> {
 //===============WORKSCHEDULEDEFAULTVALUE=================================
 #[tauri::command]
 async fn init_default_value_db() -> bool {
-    if init_pool().await.is_err() { return false; }
+    if init_pool().await.is_err() {
+        return false;
+    }
     sdv::init_default_value_db().await.is_ok()
 }
 
@@ -78,6 +86,11 @@ async fn get_default_work_schedule() -> Result<WorkRecord, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .setup(|_app| {
+            // 起動時に一度だけDBプールを作る（失敗したらここでわかる）
+            tauri::async_runtime::block_on(async { crate::init_pool().await })?;
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             greet,

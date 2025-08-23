@@ -43,7 +43,7 @@ pub fn Home() -> Element {
     });
 
     use_effect(move || {
-        if need_refresh() {
+        if *need_refresh.read() == true {
             initialize(home_strc);
 
             spawn_local(async move {

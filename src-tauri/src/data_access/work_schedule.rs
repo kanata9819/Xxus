@@ -43,9 +43,13 @@ pub async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, bool> {
         .map_err(|_| false)?;
 
     let mut work_records = Vec::new();
+
+    if work_records.is_empty() {
+        return Ok(work_records);
+    }
+
     for row in rows {
         work_records.push(WorkRecord {
-            id: row.get("id"),
             date: row.get("date"),
             start_time: row.get("start_time"),
             end_time: row.get("end_time"),
