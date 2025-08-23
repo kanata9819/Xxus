@@ -115,6 +115,7 @@ pub fn TimesheetMonthActuals() -> Element {
                             }
                         });
                     },
+                    show_input: show_input.clone(),
                 }
                 // トースト表示
                 match *toast.read() {
