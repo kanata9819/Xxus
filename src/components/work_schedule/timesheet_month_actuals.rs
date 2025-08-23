@@ -13,6 +13,7 @@ pub fn TimesheetMonthActuals() -> Element {
     let current_month = today.month();
     let current_day = today.day();
 
+    let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let show_settings: Signal<bool> = use_signal(|| false);
     // 当月初日の年月日
@@ -23,6 +24,15 @@ pub fn TimesheetMonthActuals() -> Element {
     let base_end_YMD = base_start_next_month_YMD.unwrap() - Duration::days(1);
     // 実績入力画面を表示するか
     let mut show_input: Signal<bool> = use_signal(|| false);
+
+    use_future(move || async move {
+        work_data
+            .set(invoke::<Vec<WorkRecord>>("get_work_schedule_data", &serde_json::json!({})).await);
+
+        if work_data.read().is_empty() {
+            toast.set(Some(("実績データがありません。勤務入力から登録してください".to_string(), true)));
+        }
+    });
 
     rsx! {
         // ヘッダー部
@@ -35,8 +45,15 @@ pub fn TimesheetMonthActuals() -> Element {
                 "{current_month}"
                 span { class: "ml-1 text-base font-normal text-slate-400", "月" }
             }
-            div { class: "ml-auto px-3 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300 ring-1 ring-white/10",
-                "本日: {current_day}日"
+            div { class: "ml-auto flex items-center gap-3",
+                div { class: "px-3 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300 ring-1 ring-white/10",
+                    "本日: {current_day}日"
+                }
+                button {
+                    class: "px-3 py-1.5 rounded-md bg-sky-600/80 hover:bg-sky-600 text-white text-xs font-semibold tracking-wide shadow transition",
+                    onclick: move |_| show_input.set(true),
+                    "勤務入力"
+                }
             }
         }
 
@@ -74,7 +91,7 @@ pub fn TimesheetMonthActuals() -> Element {
                     let today_badge = if is_today { Some("TODAY") } else { None };
                     rsx! {
                         div {
-                            class: "group relative rounded-lg p-3 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
+                            class: "group relative rounded-lg p-4 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
                             onclick: move |_| {
                                 show_input.set(true);
                             },
@@ -98,53 +115,71 @@ pub fn TimesheetMonthActuals() -> Element {
                 }
             }
         }
-        match *show_input.read() {
-            true => rsx! {
-                WorkSchedule {
-                    on_submit: move |props: WorkRecord| {
-                        let mut toast_set = toast.clone();
-                        spawn(async move {
-                            let ok: bool = invoke::<
-                                bool,
-                            >("add_work_schedule", &serde_json::json!({ "props" : props }))
-                                .await;
-                            if ok {
-                                toast_set.set(Some(("登録に成功しました".to_string(), false)));
-                            } else {
-                                toast_set.set(Some(("登録に失敗しました".to_string(), true)));
-                            }
-                        });
-                    },
-                    show_input: show_input.clone(),
+        // 勤務入力オーバーレイ
+        if *show_input.read() {
+            div { class: "fixed inset-0 z-40",
+                // 背景
+                div {
+                    class: "absolute inset-0 bg-black/50 backdrop-blur-sm",
+                    onclick: move |_| show_input.set(false),
                 }
-                // トースト表示
-                match *toast.read() {
-                    Some((ref msg, _is_err)) => rsx! {
-                        div { class: "fixed bottom-4 right-4 z-50",
-                            div { class: "modal-panel-dark border rounded shadow px-4 py-2 flex items-center gap-3",
-                                span { class: "text-sm", "{msg}" }
-                                button {
-                                    class: "text-gray-500 hover:text-gray-300",
-                                    onclick: move |_| toast.set(None),
-                                    "×"
-                                }
+                // パネル
+                div { class: "absolute inset-0 flex items-center justify-center p-4",
+                    div { class: "w-[100vw] max-w-[1250px] max-h-[90vh] overflow-y-auto rounded-xl bg-slate-900/95 border border-white/10 ring-1 ring-white/15 shadow-2xl backdrop-blur-xl flex flex-col",
+                        div { class: "p-5 pb-6",
+                            WorkSchedule {
+                                on_submit: move |props: WorkRecord| {
+                                    let mut toast_set = toast.clone();
+                                    let mut close_flag = show_input.clone();
+                                    spawn(async move {
+                                        let ok: bool = invoke::<
+                                            bool,
+                                        >("add_work_schedule", &serde_json::json!({ "props" : props }))
+                                            .await;
+                                        if ok {
+                                            toast_set.set(Some(("登録に成功しました".to_string(), false)));
+                                        } else {
+                                            toast_set.set(Some(("登録に失敗しました".to_string(), true)));
+                                        }
+                                        close_flag.set(false);
+                                    });
+                                },
+                                show_input: show_input.clone(),
+                                show_settings: show_settings.clone(),
                             }
                         }
-                    },
-                    None => rsx! {},
+                    }
                 }
-                // オーバレイ（初期値設定）
-                if *show_settings.read() {
-                    Overlay {
-                        show_settings: show_settings.clone(),
-                        on_toast: move |(msg, is_err): (String, bool)| {
-                            let mut t = toast.clone();
-                            t.set(Some((msg, is_err)));
-                        },
+            }
+        }
+
+        // 設定オーバーレイ
+        if *show_settings.read() {
+            Overlay {
+                show_settings: show_settings.clone(),
+                on_toast: move |(msg, is_err): (String, bool)| {
+                    toast.set(Some((msg, is_err)));
+                },
+            }
+        }
+
+        // トースト表示 (常時)
+        match *toast.read() {
+            Some((ref msg, is_show)) => rsx! {
+                if is_show {
+                    div { class: "fixed bottom-4 right-4 z-50",
+                        div { class: "modal-panel-dark border rounded shadow px-4 py-2 flex items-center gap-3",
+                            span { class: "text-sm", "{msg}" }
+                            button {
+                                class: "text-gray-500 hover:text-gray-300",
+                                onclick: move |_| toast.set(None),
+                                "×"
+                            }
+                        }
                     }
                 }
             },
-            false => rsx! {},
+            None => rsx! {},
         }
     }
 }

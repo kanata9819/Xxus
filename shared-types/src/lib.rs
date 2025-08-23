@@ -20,6 +20,7 @@ pub struct  AddCashFlowProps {
 // #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WorkRecord {
+    pub id: i32,
     pub date: String,       // "2025-08-08"
     pub start_time: String, // "09:00"
     pub end_time: String,   // "18:00"

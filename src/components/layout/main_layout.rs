@@ -3,7 +3,7 @@ use dioxus_router::prelude::{Outlet};
 use crate::components::sidebar::sidebar::Sidebar;
 use crate::enums::enum_global::AppRoute;
 
-const CSS_PATH: Asset = asset!("/assets/styles.css");
+const CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn MainLayout() -> Element {

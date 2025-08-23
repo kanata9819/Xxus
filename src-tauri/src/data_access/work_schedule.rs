@@ -1,6 +1,6 @@
 use shared_types::WorkRecord;
 use crate::data_access::pool;
-use sqlx::Executor;
+use sqlx::{Executor, Row};
 
 pub async fn init_db() -> Result<(), String> {
     let ddl = r#"
@@ -34,6 +34,29 @@ pub async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
         .await
         .map_err(|e| e.to_string())?;
     Ok(true)
+}
+
+pub async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, bool> {
+    let rows = sqlx::query("SELECT * FROM work_schedule")
+        .fetch_all(pool())
+        .await
+        .map_err(|_| false)?;
+
+    let mut work_records = Vec::new();
+    for row in rows {
+        work_records.push(WorkRecord {
+            id: row.get("id"),
+            date: row.get("date"),
+            start_time: row.get("start_time"),
+            end_time: row.get("end_time"),
+            hourly_wage: row.get("hourly_wage"),
+            rest_time: row.get("rest_time"),
+            minutes: row.get("minutes"),
+            amount: row.get("amount"),
+            note: row.get("note"),
+        });
+    }
+    Ok(work_records)
 }
 
 pub async fn delete_work_schedule_data() -> Result<(), String> {

@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-static CSS_PATH: Asset = asset!("/assets/styles.css");
+static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn CalcHourlyWage() -> Element {

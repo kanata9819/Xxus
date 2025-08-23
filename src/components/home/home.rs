@@ -7,7 +7,7 @@ use tauri_sys::core::invoke;
 use wasm_bindgen_futures::spawn_local;
 use serde_json;
 
-static CSS_PATH: Asset = asset!("/assets/styles.css");
+static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct HomeSignals {

@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use tauri_sys::core::invoke;
 use serde_json::json;
 
-const CSS_PATH: Asset = asset!("/assets/components/settings/settings.css");
+const CSS_PATH: Asset = asset!("assets/components/settings/settings.css");
 
 #[component]
 pub fn Settings() -> Element {

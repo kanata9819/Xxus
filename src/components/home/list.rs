@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use shared_types::CashFlow;
 
-static CSS_PATH: Asset = asset!("/assets/components/home/list.css");
+static CSS_PATH: Asset = asset!("assets/components/home/list.css");
 
 #[derive(Debug, Props, Clone, PartialEq)]
 pub struct ListProps {

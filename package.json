@@ -9,6 +9,7 @@
   "scripts": {
     "tw": "npx @tailwindcss/cli -i ./assets/tailwind.css -o ./assets/styles.css",
     "tww": "npx @tailwindcss/cli -i ./assets/tailwind.css -o ./assets/styles.css --watch",
-    "dev": "concurrently -k \"npm:tww\" \"cargo tauri dev\""
+    "dev": "concurrently -k \"npm:tww\" \"cargo tauri dev\"",
+    "tb": "cargo tauri build"
   }
 }

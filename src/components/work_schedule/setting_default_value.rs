@@ -2,10 +2,11 @@ use dioxus::{prelude::*};
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
 
-static CSS_PATH: Asset = asset!("/assets/styles.css");
+static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
+    let id: Signal<i32> = use_signal(|| 0);
     let mut start_time: Signal<String> = use_signal(|| String::new());
     let mut end_time: Signal<String> = use_signal(|| String::new());
     let mut rest_time: Signal<String> = use_signal(|| String::new());
@@ -148,6 +149,7 @@ pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
                                 };
                                 let amount = wage.saturating_mul(minutes) / 60;
                                 let record = WorkRecord {
+                                    id: *id.read(),
                                     date: String::new(),
                                     start_time: start_time(),
                                     end_time: end_time(),

@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
 
-static CSS_PATH: Asset = asset!("/assets/styles.css");
+static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool)>) -> Element {
