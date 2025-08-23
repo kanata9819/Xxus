@@ -1,6 +1,10 @@
 use chrono::{prelude::*, Duration};
 use dioxus::prelude::*;
 // use web_sys::console::log_1;
+use super::overlay::Overlay;
+use super::work_schedule::WorkSchedule;
+use shared_types::WorkRecord;
+use tauri_sys::core::invoke;
 
 #[component]
 pub fn TimesheetMonthActuals() -> Element {
@@ -9,12 +13,16 @@ pub fn TimesheetMonthActuals() -> Element {
     let current_month = today.month();
     let current_day = today.day();
 
+    let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
+    let show_settings: Signal<bool> = use_signal(|| false);
     // 当月初日の年月日
     let base_YMD = NaiveDate::from_ymd_opt(current_year, current_month, 1);
     // 来月初日の年月日
     let base_start_next_month_YMD = NaiveDate::from_ymd_opt(current_year, current_month + 1, 1);
     // 当月末日の年月日
     let base_end_YMD = base_start_next_month_YMD.unwrap() - Duration::days(1);
+    // 実績入力画面を表示するか
+    let mut show_input: Signal<bool> = use_signal(|| false);
 
     rsx! {
         // ヘッダー部
@@ -65,7 +73,11 @@ pub fn TimesheetMonthActuals() -> Element {
                     let ring_color = if is_today { "ring-emerald-400/60" } else { "ring-white/10" };
                     let today_badge = if is_today { Some("TODAY") } else { None };
                     rsx! {
-                        div { class: "group relative rounded-lg p-3 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
+                        div {
+                            class: "group relative rounded-lg p-3 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
+                            onclick: move |_| {
+                                show_input.set(true);
+                            },
                             div { class: "flex items-baseline gap-2",
                                 span { class: "text-sm font-semibold tracking-wide {base_color}", "{current_month}月{day}日" }
                                 span { class: "text-[10px] md:text-[11px] tracking-wider text-slate-400 group-hover:text-slate-300 transition",
@@ -85,6 +97,53 @@ pub fn TimesheetMonthActuals() -> Element {
                     }
                 }
             }
+        }
+        match *show_input.read() {
+            true => rsx! {
+                WorkSchedule {
+                    on_submit: move |props: WorkRecord| {
+                        let mut toast_set = toast.clone();
+                        spawn(async move {
+                            let ok: bool = invoke::<
+                                bool,
+                            >("add_work_schedule", &serde_json::json!({ "props" : props }))
+                                .await;
+                            if ok {
+                                toast_set.set(Some(("登録に成功しました".to_string(), false)));
+                            } else {
+                                toast_set.set(Some(("登録に失敗しました".to_string(), true)));
+                            }
+                        });
+                    },
+                }
+                // トースト表示
+                match *toast.read() {
+                    Some((ref msg, _is_err)) => rsx! {
+                        div { class: "fixed bottom-4 right-4 z-50",
+                            div { class: "modal-panel-dark border rounded shadow px-4 py-2 flex items-center gap-3",
+                                span { class: "text-sm", "{msg}" }
+                                button {
+                                    class: "text-gray-500 hover:text-gray-300",
+                                    onclick: move |_| toast.set(None),
+                                    "×"
+                                }
+                            }
+                        }
+                    },
+                    None => rsx! {},
+                }
+                // オーバレイ（初期値設定）
+                if *show_settings.read() {
+                    Overlay {
+                        show_settings: show_settings.clone(),
+                        on_toast: move |(msg, is_err): (String, bool)| {
+                            let mut t = toast.clone();
+                            t.set(Some((msg, is_err)));
+                        },
+                    }
+                }
+            },
+            false => rsx! {},
         }
     }
 }

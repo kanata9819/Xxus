@@ -28,6 +28,7 @@ pub fn WorkScheduleRoute() -> Element {
                 button {
                     class: "px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white w-[12vw] h-[7vh]",
                     onclick: move |_| show_settings.set(true),
+                    disabled: *show_list.read(), // 一覧表示中は初期値設定ボタンを無効化
                     "初期値設定"
                 }
                 match show_list() {
@@ -48,7 +49,7 @@ pub fn WorkScheduleRoute() -> Element {
                 }
             }
 
-            match show_list() {
+            match *show_list.read() {
                 true => rsx! {
                     TimesheetMonthActuals {}
                 },
@@ -70,9 +71,8 @@ pub fn WorkScheduleRoute() -> Element {
                             });
                         },
                     }
-                    
                     // トースト表示
-                    match toast() {
+                    match *toast.read() {
                         Some((ref msg, _is_err)) => rsx! {
                             div { class: "fixed bottom-4 right-4 z-50",
                                 div { class: "modal-panel-dark border rounded shadow px-4 py-2 flex items-center gap-3",
@@ -87,9 +87,8 @@ pub fn WorkScheduleRoute() -> Element {
                         },
                         None => rsx! {},
                     }
-                    
                     // オーバレイ（初期値設定）
-                    if show_settings() {
+                    if *show_settings.read() {
                         Overlay {
                             show_settings: show_settings.clone(),
                             on_toast: move |(msg, is_err): (String, bool)| {

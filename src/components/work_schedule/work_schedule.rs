@@ -42,7 +42,7 @@ pub fn WorkSchedule(on_submit: EventHandler<WorkRecord>) -> Element {
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
         // ページ全体の余白のみ（背景は周囲のダークに合わせる）
-        div { class: "min-h-[65vh] p-4 flex flex-row gap-4",
+        div { class: "min-h-[65vh] p-4 flex flex-row gap-4 z-30 inset-0",
             // ダーク調のパネル背景
             div { class: "flex flex-col gap-4 w-[50vw] modal-panel-dark",
                 h2 { class: "font-bold text-xl", "勤務実績入力" }
