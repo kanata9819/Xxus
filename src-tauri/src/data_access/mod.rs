@@ -1,12 +1,13 @@
 pub mod data_access;
 pub mod work_schedule;
 pub mod setting_default_value;
-use std::{env, fs, path::PathBuf, str::FromStr};
+use std::{env, fs, path::PathBuf};
 
 use once_cell::sync::OnceCell;
 use sqlx::{sqlite::{SqliteConnectOptions, SqlitePoolOptions}, SqlitePool};
 
 static DB_POOL: OnceCell<SqlitePool> = OnceCell::new();
+static RESOLVED_DB_PATH: OnceCell<PathBuf> = OnceCell::new();
 
 pub async fn init_pool() -> Result<(), String> {
     if DB_POOL.get().is_some() { return Ok(()); }
@@ -35,9 +36,8 @@ pub async fn init_pool() -> Result<(), String> {
             .map_err(|e| format!("Failed to create DB directory {:?}: {}", parent, e))?;
     }
 
-    // ★ URL 組み立て禁止。ConnectOptions に “ファイル名” をそのまま渡す
-    let opts = SqliteConnectOptions::from_str("sqlite://:memory:")
-        .map_err(|e| e.to_string())?
+    // ConnectOptions をファイル向けに構築
+    let opts = SqliteConnectOptions::new()
         .filename(&resolved_path)
         .create_if_missing(true)
         .read_only(false);
@@ -48,6 +48,8 @@ pub async fn init_pool() -> Result<(), String> {
         .await
         .map_err(|e| format!("DB connect failed ({}): {}", resolved_path.display(), e))?;
 
+    let _ = RESOLVED_DB_PATH.set(resolved_path.clone());
+
     DB_POOL.set(pool).map_err(|_| "Pool already set".to_string())?;
     Ok(())
 }
@@ -55,4 +57,9 @@ pub async fn init_pool() -> Result<(), String> {
 
 pub fn pool() -> &'static SqlitePool {
 	DB_POOL.get().expect("DB pool not initialized. Call init_pool() first.")
+}
+
+// デバッグ用: 解決済み DB パスを取得
+pub fn db_path() -> Option<PathBuf> {
+    RESOLVED_DB_PATH.get().cloned()
 }

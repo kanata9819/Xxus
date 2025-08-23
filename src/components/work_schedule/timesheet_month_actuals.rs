@@ -8,29 +8,39 @@ use tauri_sys::core::invoke;
 
 #[component]
 pub fn TimesheetMonthActuals() -> Element {
-    let today = Local::now().date_naive();
-    let current_year = today.year();
-    let current_month = today.month();
-    let current_day = today.day();
+    let today: NaiveDate = Local::now().date_naive();
+    let current_year: i32 = today.year();
+    let current_month: u32 = today.month();
+    let current_day: u32 = today.day();
 
     let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let show_settings: Signal<bool> = use_signal(|| false);
     // 当月初日の年月日
-    let base_YMD = NaiveDate::from_ymd_opt(current_year, current_month, 1);
+    let base_YMD: Option<NaiveDate> = NaiveDate::from_ymd_opt(current_year, current_month, 1);
     // 来月初日の年月日
-    let base_start_next_month_YMD = NaiveDate::from_ymd_opt(current_year, current_month + 1, 1);
+    let base_start_next_month_YMD: Option<NaiveDate> =
+        NaiveDate::from_ymd_opt(current_year, current_month + 1, 1);
     // 当月末日の年月日
-    let base_end_YMD = base_start_next_month_YMD.unwrap() - Duration::days(1);
+    let base_end_YMD: NaiveDate = base_start_next_month_YMD.unwrap() - Duration::days(1);
     // 実績入力画面を表示するか
     let mut show_input: Signal<bool> = use_signal(|| false);
 
     use_future(move || async move {
-        work_data
-            .set(invoke::<Vec<WorkRecord>>("get_work_schedule_data", &serde_json::json!({})).await);
+        let ini_result: bool =
+            invoke::<bool>("init_work_schedule_db", &serde_json::json!({})).await;
+        if ini_result {
+            let fetched_data: Vec<WorkRecord> =
+                invoke::<Vec<WorkRecord>>("get_work_schedule_data", &serde_json::json!({})).await;
 
-        if work_data.read().is_empty() {
-            toast.set(Some(("実績データがありません。勤務入力から登録してください".to_string(), true)));
+            if work_data.read().is_empty() {
+                toast.set(Some((
+                    "実績データがありません。勤務入力から登録してください".to_string(),
+                    true,
+                )));
+            } else {
+                work_data.set(fetched_data);
+            }
         }
     });
 

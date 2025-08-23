@@ -4,6 +4,8 @@ use data_access::{
     data_access as dac, init_pool, setting_default_value as sdv, work_schedule as ws,
 };
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
+use crate::data_access::db_path as resolved_db_path;
+use tauri::{Manager, Emitter};
 
 #[tauri::command]
 async fn init_db() -> bool {
@@ -11,6 +13,11 @@ async fn init_db() -> bool {
         return false;
     }
     dac::init_db().await.is_ok()
+}
+
+#[tauri::command]
+fn db_path() -> Option<String> {
+    resolved_db_path().map(|p| p.display().to_string())
 }
 
 //==============HOME==================================
@@ -59,7 +66,7 @@ async fn delete_work_schedule_data() -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, bool> {
+async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, String> {
     ws::get_work_schedule_data().await
 }
 
@@ -86,9 +93,17 @@ async fn get_default_work_schedule() -> Result<WorkRecord, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|_app| {
-            // 起動時に一度だけDBプールを作る（失敗したらここでわかる）
-            tauri::async_runtime::block_on(async { crate::init_pool().await })?;
+        .setup(|app| {
+            // DB 初期化 & パス表示
+            if let Err(e) = tauri::async_runtime::block_on(async { crate::init_pool().await }) {
+                eprintln!("[DB] init failed: {e}");
+            } else if let Some(p) = resolved_db_path() {
+                println!("[DB] using path: {}", p.display());
+                // 確認用にウィンドウイベントで通知も可能（必要なら）
+                if let Some(win) = app.get_webview_window("main") {
+                    let _ = win.emit("db_path", p.display().to_string());
+                }
+            }
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
@@ -105,7 +120,8 @@ pub fn run() {
             delete_work_schedule_data,
             get_default_work_schedule,
             delete_specific_data,
-            get_work_schedule_data
+            get_work_schedule_data,
+            db_path
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
