@@ -85,7 +85,7 @@ async fn update_default_work_schedule(props: WorkRecord) -> Result<bool, String>
 }
 
 #[tauri::command]
-async fn get_default_work_schedule() -> Result<WorkRecord, String> {
+async fn get_default_work_schedule() -> Result<Option<WorkRecord>, String> {
     sdv::get_default_work_schedule().await
 }
 

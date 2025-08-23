@@ -15,11 +15,13 @@ pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
 
     use_effect(move || {
         spawn(async move {
-            let default: WorkRecord = invoke::<WorkRecord>("get_default_work_schedule", &serde_json::json!({})).await;
-            start_time.set(default.start_time);
-            end_time.set(default.end_time);
-            rest_time.set(default.rest_time);
-            hourly_wage.set(default.hourly_wage.to_string());
+            let default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({})).await;
+            if let Some(default) = default_opt {
+                start_time.set(default.start_time);
+                end_time.set(default.end_time);
+                rest_time.set(default.rest_time);
+                hourly_wage.set(default.hourly_wage.to_string());
+            }
         });
     });
 

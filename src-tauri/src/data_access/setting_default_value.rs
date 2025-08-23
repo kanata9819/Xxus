@@ -1,9 +1,9 @@
-use shared_types::WorkRecord;
 use crate::data_access::pool;
+use shared_types::WorkRecord;
 use sqlx::{Executor, Row};
 
 pub async fn init_default_value_db() -> Result<(), String> {
-    let ddl = r#"
+    let ddl: &'static str = r#"
         CREATE TABLE IF NOT EXISTS work_schedule_default_values (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             date        TEXT    NOT NULL,
@@ -16,28 +16,35 @@ pub async fn init_default_value_db() -> Result<(), String> {
             note        TEXT
         );
     "#;
-    pool().execute(sqlx::query(ddl)).await.map_err(|e| e.to_string())?;
+    pool()
+        .execute(sqlx::query(ddl))
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
-pub async fn get_default_work_schedule() -> Result<WorkRecord, String> {
-    let row_opt = sqlx::query("SELECT date, start_time, end_time, hourly_wage, rest_time, minutes, amount, note FROM work_schedule_default_values LIMIT 1")
+pub async fn get_default_work_schedule() -> Result<Option<WorkRecord>, String> {
+    let row_opt: Option<sqlx::sqlite::SqliteRow> = match sqlx::query("SELECT date, start_time, end_time, hourly_wage, rest_time, minutes, amount, note FROM work_schedule_default_values LIMIT 1")
         .fetch_optional(pool())
-        .await
-        .map_err(|e| e.to_string())?;
+        .await {
+        Ok(row) => row,
+        Err(e) => return Err(e.to_string()),
+    };
+
     if let Some(r) = row_opt {
-        Ok(WorkRecord {
-            date: r.get::<String, _>(0),
-            start_time: r.get::<String, _>(1),
-            end_time: r.get::<String, _>(2),
-            hourly_wage: r.get::<i64, _>(3) as i32,
-            rest_time: r.get::<String, _>(4),
-            minutes: r.get::<i64, _>(5) as i32,
-            amount: r.get::<i64, _>(6) as i32,
-            note: r.get::<String, _>(7),
-        })
+        let record = WorkRecord {
+            date: r.try_get::<String, _>(0).map_err(|e| e.to_string())?,
+            start_time: r.try_get::<String, _>(1).map_err(|e| e.to_string())?,
+            end_time: r.try_get::<String, _>(2).map_err(|e| e.to_string())?,
+            hourly_wage: r.try_get::<i64, _>(3).map_err(|e| e.to_string())? as i32,
+            rest_time: r.try_get::<String, _>(4).map_err(|e| e.to_string())?,
+            minutes: r.try_get::<i64, _>(5).map_err(|e| e.to_string())? as i32,
+            amount: r.try_get::<i64, _>(6).map_err(|e| e.to_string())? as i32,
+            note: r.try_get::<String, _>(7).map_err(|e| e.to_string())?,
+        };
+        Ok(Some(record))
     } else {
-        Err("No default work schedule found".to_string())
+        Ok(None)
     }
 }
 

@@ -3,6 +3,7 @@ use chrono::prelude::*;
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
+use web_sys::console::log_1;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
@@ -23,14 +24,25 @@ pub fn WorkSchedule(
 
     use_future(move || async move {
         let default_date: String = Local::now().format("%Y-%m-%d").to_string();
-        let default: WorkRecord =
-            invoke::<WorkRecord>("get_default_work_schedule", &serde_json::json!({})).await;
-        date.set(default_date);
-        start_time.set(default.start_time);
-        end_time.set(default.end_time);
-        rest_time.set(default.rest_time);
-        hourly_wage.set(default.hourly_wage.to_string());
-        note.set(default.note);
+        let ini_result: bool =
+            invoke::<bool>("init_default_value_db", &serde_json::json!({})).await;
+
+        log_1(&format!("[WorkSchedule] init_default_value_db: {ini_result}").into());
+
+        if ini_result {
+            let default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({})).await;
+            if let Some(default) = default_opt {
+                date.set(default_date);
+                start_time.set(default.start_time);
+                end_time.set(default.end_time);
+                rest_time.set(default.rest_time);
+                hourly_wage.set(default.hourly_wage.to_string());
+                note.set(default.note);
+            } else {
+                // 既存レコード無し: 日付のみセットし他は空 (初回入力想定)
+                date.set(default_date);
+            }
+        }
     });
 
     let (minutes_opt, amount_opt) = {
