@@ -2,7 +2,7 @@ use super::calc_hourly_wage::CalcHourlyWage;
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
-use web_sys::console::log_1;
+// use web_sys::console::log_1;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
@@ -33,6 +33,7 @@ pub fn WorkSchedule(
     let mut hourly_wage: Signal<String> = use_signal(|| String::new());
     let mut note: Signal<String> = use_signal(|| String::new());
     let displaying_date: Signal<String> = use_signal(|| display_date_props.clone());
+    let mut is_data_exist: Signal<bool> = use_signal(|| false);
     // 内部処理用シグナル
     let mut error: Signal<String> = use_signal(|| String::new());
     let mut loading: Signal<bool> = use_signal(|| false);
@@ -47,16 +48,15 @@ pub fn WorkSchedule(
     };
 
     // 実績データが存在すれば、表示内容を設定する
-    if check_specific_data_exist(
-        &timesheet_data_props,
-        displaying_date.read().to_string(),
-    ) {
+    if check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string()) {
+        is_data_exist.set(true);
         set_timesheet_data(
             displaying_date.read().to_string(),
             timesheet_data_props.clone(),
             signals,
         );
     } else {
+        is_data_exist.set(false);
         if let Some(default_data) = default_opt_sig.read().as_ref() {
             set_default_data(default_data, signals, displaying_date.read().to_string());
         }
@@ -87,18 +87,47 @@ pub fn WorkSchedule(
         (minutes_opt, amount_opt)
     };
 
+    let is_exist_now = *is_data_exist.read();
+    let (badge_class, badge_text) = if is_exist_now {
+        (
+            "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
+             bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/40
+             shadow-inner shadow-emerald-900/40 backdrop-blur-sm
+             flex items-center gap-1",
+            "訂正",
+        )
+    } else {
+        (
+            "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
+             bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/40
+             shadow-inner shadow-rose-900/40 backdrop-blur-sm
+             flex items-center gap-1",
+            "新規",
+        )
+    };
+
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
         div { class: "modal-panel-dark",
-            // ページ全体の余白のみ（背景は周囲のダークに合わせる）
-            div { class: "p-4 flex flex-row items-center gap-4",
-                "勤務実績"
-                button {
-                    class: "px-4 py-2 rounded bg-blue-600 text-white",
-                    onclick: move |_| { show_settings.set(true) },
-                    "初期値設定"
+            header { class: "p-4 flex flex-row items-center gap-4",
+                // 旧: div { class: "bg-green p-4 rounded", ... }
+                div { class: "{badge_class}",
+                    // アイコン風ドット
+                    span { class: "w-2 h-2 rounded-full bg-current opacity-70" }
+                    span { "{badge_text}" }
+                }
+                // ページ全体の余白のみ（背景は周囲のダークに合わせる）
+                div { class: "p-4 flex flex-row items-center gap-4",
+
+                    "勤務実績"
+                    button {
+                        class: "px-4 py-2 rounded bg-blue-600 text-white",
+                        onclick: move |_| { show_settings.set(true) },
+                        "初期値設定"
+                    }
                 }
             }
+
             div { class: "min-h-[65vh] p-4 flex flex-row gap-4 z-30 inset-0",
                 button { onclick: move |_| show_input.set(false), "×" }
                 // ダーク調のパネル背景
@@ -339,13 +368,6 @@ fn set_timesheet_data(
     mut signals: LocalSignals,
 ) {
     for record in timesheet_data.iter() {
-        log_1(
-            &format!(
-                "set_timesheet_data: display_date={display_date}, record_date={:?}",
-                record.date
-            )
-            .into(),
-        );
         if record.date == display_date {
             signals.date.set(record.date.clone());
             signals.start_time.set(record.start_time.clone());

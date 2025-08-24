@@ -123,7 +123,7 @@ pub fn TimesheetMonthActuals() -> Element {
                                 if check_data_exists(&display_date, &work_data.read()) {
                                     div { class: "text-green-500", "記録あり" }
                                 } else {
-                                    div { class: "text-slate-500", "記録なし" }
+                                    div { class: "text-slate-501", "記録なし" }
                                 }
                             }
                         }
@@ -147,13 +147,19 @@ pub fn TimesheetMonthActuals() -> Element {
                                 on_submit: move |props: WorkRecord| {
                                     let mut toast_set = toast.clone();
                                     let mut close_flag = show_input.clone();
+                                    work_data.set(vec![]);
                                     spawn(async move {
                                         let ok: bool = invoke::<
                                             bool,
                                         >("add_work_schedule", &serde_json::json!({ "props" : props }))
                                             .await;
                                         if ok {
-                                            toast_set.set(Some(("登録に成功しました".to_string(), false)));
+                                            toast_set.set(Some(("登録に成功しました".to_string(), true)));
+                                            let fetched_data: Vec<WorkRecord> = invoke::<
+                                                Vec<WorkRecord>,
+                                            >("get_work_schedule_data", &serde_json::json!({}))
+                                                .await;
+                                            work_data.set(fetched_data);
                                         } else {
                                             toast_set.set(Some(("登録に失敗しました".to_string(), true)));
                                         }

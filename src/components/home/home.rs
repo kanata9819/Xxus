@@ -1,7 +1,6 @@
 use super::input::Inputs;
 use super::list::List;
 use dioxus::prelude::*;
-// use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet}; // リリース問題切り分けのため無効化
 use serde_json;
 use shared_types::CashFlow;
 use tauri_sys::core::invoke;
@@ -56,7 +55,6 @@ pub fn Home() -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        // MaterialIconStylesheet {}
         div { class: "home-container flex flex-col gap-4 w-[85vw] max-w-[100vw] mx-auto mt-4",
             span { class: "text-xl mr-1", "🏠" }
             div { class: "budget-container",
@@ -195,6 +193,9 @@ fn initialize(mut strc: HomeSignals) {
 
 async fn handle_load(mut home_strc: HomeSignals) {
     invoke::<bool>("init_db", &()).await;
+
+    home_strc.vec_cash_flows.set(vec![]);
+    home_strc.total.set(0);
 
     let flows: Vec<CashFlow> = list_cash_flows_or_empty().await;
 
