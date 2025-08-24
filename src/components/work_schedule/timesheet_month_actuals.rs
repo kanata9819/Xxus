@@ -4,7 +4,7 @@ use chrono::{prelude::*, Duration};
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
-use web_sys::console::log_1;
+// use web_sys::console::log_1;
 
 #[component]
 pub fn TimesheetMonthActuals() -> Element {
@@ -12,18 +12,18 @@ pub fn TimesheetMonthActuals() -> Element {
     let current_year: i32 = today.year();
     let current_month: u32 = today.month();
     let current_day: u32 = today.day();
-
-    let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
-    let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
-    let show_settings: Signal<bool> = use_signal(|| false);
-    // 当月初日の年月日
     let base_YMD: Option<NaiveDate> = NaiveDate::from_ymd_opt(current_year, current_month, 1);
-    // 来月初日の年月日
     let base_start_next_month_YMD: Option<NaiveDate> =
         NaiveDate::from_ymd_opt(current_year, current_month + 1, 1);
-    // 当月末日の年月日
+    let show_settings: Signal<bool> = use_signal(|| false);
     let base_end_YMD: NaiveDate = base_start_next_month_YMD.unwrap() - Duration::days(1);
-    // 実績入力画面を表示するか
+
+    let mut selected_date: Signal<NaiveDate> =
+        use_signal(|| NaiveDate::from_ymd_opt(current_year, current_month, current_day).unwrap());
+    let mut display_date: NaiveDate =
+        NaiveDate::from_ymd_opt(current_year, current_month, current_day).unwrap();
+    let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
+    let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let mut show_input: Signal<bool> = use_signal(|| false);
 
     use_future(move || async move {
@@ -72,13 +72,13 @@ pub fn TimesheetMonthActuals() -> Element {
         div { class: "grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
             for day in 1..=base_end_YMD.day() {
                 {
-                    let disp_date: NaiveDate = NaiveDate::from_ymd_opt(
+                    display_date = NaiveDate::from_ymd_opt(
                             base_YMD.map_or(0, |d| d.year()),
                             base_YMD.map_or(0, |d| d.month()),
                             day,
                         )
                         .unwrap();
-                    let weekday = match disp_date.weekday() {
+                    let weekday = match display_date.weekday() {
                         Weekday::Mon => "月",
                         Weekday::Tue => "火",
                         Weekday::Wed => "水",
@@ -87,7 +87,7 @@ pub fn TimesheetMonthActuals() -> Element {
                         Weekday::Sat => "土",
                         Weekday::Sun => "日",
                     };
-                    let is_today = disp_date.day() == current_day;
+                    let is_today = display_date.day() == current_day;
                     let base_color = match weekday {
                         "土" => "text-blue-400",
                         "日" => "text-rose-400",
@@ -104,6 +104,7 @@ pub fn TimesheetMonthActuals() -> Element {
                         div {
                             class: "group relative rounded-lg p-4 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
                             onclick: move |_| {
+                                selected_date.set(display_date);
                                 show_input.set(true);
                             },
                             div { class: "flex items-baseline gap-2",
@@ -119,7 +120,7 @@ pub fn TimesheetMonthActuals() -> Element {
                             }
                             // 将来: 実績データセクション
                             div { class: "h-5 text-[11px] group-hover:text-slate-400 italic",
-                                if check_data_exists(&disp_date, &work_data.read()) {
+                                if check_data_exists(&display_date, &work_data.read()) {
                                     div { class: "text-green-500", "記録あり" }
                                 } else {
                                     div { class: "text-slate-500", "記録なし" }
@@ -161,7 +162,8 @@ pub fn TimesheetMonthActuals() -> Element {
                                 },
                                 show_input: show_input.clone(),
                                 show_settings: show_settings.clone(),
-                                timesheet_data: work_data.read().to_vec(),
+                                timesheet_data_props: work_data.read().to_vec(),
+                                display_date_props: selected_date.to_string(),
                             }
                         }
                     }
@@ -201,10 +203,7 @@ pub fn TimesheetMonthActuals() -> Element {
 }
 
 fn check_data_exists(disp_date: &NaiveDate, work_data: &Vec<WorkRecord>) -> bool {
-    log_1(&format!("Checking data for date: {}", disp_date).into());
-    log_1(&format!("Total records: {}", work_data.len()).into());
     for record in work_data {
-        log_1(&format!("Checking record date: {}", record.date).into());
         if record.date == disp_date.to_string() {
             return true;
         }

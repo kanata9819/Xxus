@@ -1,5 +1,4 @@
 use super::calc_hourly_wage::CalcHourlyWage;
-use chrono::prelude::*;
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
@@ -7,41 +6,74 @@ use web_sys::console::log_1;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
+#[derive(Clone)]
+struct LocalSignals {
+    pub date: Signal<String>,
+    pub start_time: Signal<String>,
+    pub end_time: Signal<String>,
+    pub rest_time: Signal<String>,
+    pub hourly_wage: Signal<String>,
+    pub note: Signal<String>,
+}
+
 #[component]
 pub fn WorkSchedule(
     on_submit: EventHandler<WorkRecord>,
     show_input: Signal<bool>,
     show_settings: Signal<bool>,
-    timesheet_data: Vec<WorkRecord>,
+    timesheet_data_props: Vec<WorkRecord>,
+    display_date_props: String,
 ) -> Element {
+    // 画面表示内容シグナル
+    let mut default_opt_sig: Signal<Option<WorkRecord>> = use_signal(|| None);
     let mut date: Signal<String> = use_signal(|| String::new());
     let mut start_time: Signal<String> = use_signal(|| String::new());
     let mut end_time: Signal<String> = use_signal(|| String::new());
     let mut rest_time: Signal<String> = use_signal(|| String::new());
     let mut hourly_wage: Signal<String> = use_signal(|| String::new());
     let mut note: Signal<String> = use_signal(|| String::new());
+    let displaying_date: Signal<String> = use_signal(|| display_date_props.clone());
+    // 内部処理用シグナル
     let mut error: Signal<String> = use_signal(|| String::new());
     let mut loading: Signal<bool> = use_signal(|| false);
+    // シグナルをまとめる
+    let signals: LocalSignals = LocalSignals {
+        date: date,
+        start_time: start_time,
+        end_time: end_time,
+        rest_time: rest_time,
+        hourly_wage: hourly_wage,
+        note: note,
+    };
+
+    // 実績データが存在すれば、表示内容を設定する
+    if check_specific_data_exist(
+        &timesheet_data_props,
+        displaying_date.read().to_string(),
+    ) {
+        set_timesheet_data(
+            displaying_date.read().to_string(),
+            timesheet_data_props.clone(),
+            signals,
+        );
+    } else {
+        if let Some(default_data) = default_opt_sig.read().as_ref() {
+            set_default_data(default_data, signals, displaying_date.read().to_string());
+        }
+    }
 
     use_future(move || async move {
-        let default_date: String = Local::now().format("%Y-%m-%d").to_string();
         let ini_result: bool =
             invoke::<bool>("init_default_value_db", &serde_json::json!({})).await;
 
-        log_1(&format!("[WorkSchedule] init_default_value_db: {ini_result}").into());
-
         if ini_result {
-            let default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({})).await;
-            if let Some(default) = default_opt {
-                date.set(default_date);
-                start_time.set(default.start_time);
-                end_time.set(default.end_time);
-                rest_time.set(default.rest_time);
-                hourly_wage.set(default.hourly_wage.to_string());
-                note.set(default.note);
-            } else {
-                // 既存レコード無し: 日付のみセットし他は空 (初回入力想定)
-                date.set(default_date);
+            if date.read().is_empty() {
+                let fetched_default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>(
+                    "get_default_work_schedule",
+                    &serde_json::json!({}),
+                )
+                .await;
+                default_opt_sig.set(fetched_default_opt);
             }
         }
     });
@@ -299,4 +331,49 @@ fn format_minutes(m: i32) -> String {
     } else {
         format!("{mm}分")
     }
+}
+
+fn set_timesheet_data(
+    display_date: String,
+    timesheet_data: Vec<WorkRecord>,
+    mut signals: LocalSignals,
+) {
+    for record in timesheet_data.iter() {
+        log_1(
+            &format!(
+                "set_timesheet_data: display_date={display_date}, record_date={:?}",
+                record.date
+            )
+            .into(),
+        );
+        if record.date == display_date {
+            signals.date.set(record.date.clone());
+            signals.start_time.set(record.start_time.clone());
+            signals.end_time.set(record.end_time.clone());
+            signals.rest_time.set(record.rest_time.clone());
+            signals
+                .hourly_wage
+                .set(record.hourly_wage.clone().to_string());
+            signals.note.set(record.note.clone());
+            break;
+        }
+    }
+}
+
+fn check_specific_data_exist(timesheet_data: &Vec<WorkRecord>, display_date: String) -> bool {
+    for record in timesheet_data.iter() {
+        if record.date == display_date {
+            return true;
+        }
+    }
+    false
+}
+
+fn set_default_data(default_opt: &WorkRecord, mut signals: LocalSignals, display_date: String) {
+    signals.date.set(display_date);
+    signals.start_time.set(default_opt.start_time.clone());
+    signals.end_time.set(default_opt.end_time.clone());
+    signals.rest_time.set(default_opt.rest_time.clone());
+    signals.hourly_wage.set(default_opt.hourly_wage.to_string());
+    signals.note.set(default_opt.note.clone());
 }
