@@ -1,11 +1,11 @@
 use super::input::Inputs;
 use super::list::List;
-use dioxus::{prelude::*};
-use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet};
+use dioxus::prelude::*;
+// use dioxus_material_icons::{MaterialIcon, MaterialIconStylesheet}; // リリース問題切り分けのため無効化
+use serde_json;
 use shared_types::CashFlow;
 use tauri_sys::core::invoke;
 use wasm_bindgen_futures::spawn_local;
-use serde_json;
 
 static CSS_PATH: Asset = asset!("assets/styles.css");
 
@@ -56,9 +56,9 @@ pub fn Home() -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        MaterialIconStylesheet {}
+        // MaterialIconStylesheet {}
         div { class: "home-container flex flex-col gap-4 w-[85vw] max-w-[100vw] mx-auto mt-4",
-            MaterialIcon { name: "home", size: Some(24) }
+            span { class: "text-xl mr-1", "🏠" }
             div { class: "budget-container",
                 div { class: "total-container modal-panel-dark rounded-lg border border-gray-200 shadow-xl p-4 flex items-center justify-between",
                     h1 { class: "section-title", "￥{total_amount}" }
@@ -122,12 +122,10 @@ pub fn Home() -> Element {
                 // Overlays
                 if disp_ex_input() {
                     Fragment {
-                        // backdrop
                         div {
                             class: "fixed inset-0 bg-black/40 backdrop-blur-[1px] z-40",
                             onclick: move |_| disp_ex_input.set(false),
                         }
-                        // modal panel
                         div { class: "fixed inset-0 z-50 flex items-center justify-center",
                             div { class: "pointer-events-auto modal-panel-dark rounded-lg shadow-xl w-[90vw] max-w-[640px] max-h-[85vh] overflow-hidden border border-gray-200",
                                 div { class: "flex items-center justify-between px-4 py-2 border-b",
@@ -154,12 +152,10 @@ pub fn Home() -> Element {
                 }
                 if disp_in_input() {
                     Fragment {
-                        // backdrop
                         div {
                             class: "fixed inset-0 bg-black/40 backdrop-blur-[1px] z-40",
                             onclick: move |_| disp_in_input.set(false),
                         }
-                        // modal panel
                         div { class: "fixed inset-0 z-50 flex items-center justify-center",
                             div { class: "pointer-events-auto modal-panel-dark rounded-lg shadow-xl w-[90vw] max-w-[640px] max-h-[85vh] overflow-hidden border border-gray-200",
                                 div { class: "flex items-center justify-between px-4 py-2 border-b",

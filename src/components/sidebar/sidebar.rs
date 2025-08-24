@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 use crate::enums::enum_global::AppRoute;
-use dioxus_material_icons::{MaterialIconStylesheet, MaterialIcon};
+// use dioxus_material_icons::{MaterialIconStylesheet, MaterialIcon}; // コメントアウト: リリースで不具合切り分けのため無効化
 
 const CSS_PATH: Asset = asset!("/assets/components/sidebar/sidebar.css");
 
@@ -20,8 +20,16 @@ fn NavItem(props: NavItemInfo) -> Element {
             id: props.name,
             class: if props.active { "sidebar-button active" } else { "sidebar-button" },
             onclick: props.handle_click,
-            icon: props.icon,
-            MaterialIcon { name: props.name, size: Some(24) }
+            // icon: props.icon,
+            span { class: "inline-block w-6 text-center mr-1", {
+                match props.name {
+                    "home" => "🏠",
+                    "work" => "🗂",
+                    "settings" => "⚙️",
+                    _ => "•",
+                }
+            }}
+            span { class: "text-xs tracking-wide", { props.name.to_uppercase() } }
         }
     )
 }
@@ -32,7 +40,7 @@ pub fn Sidebar() -> Element {
     let current: AppRoute = use_route::<AppRoute>();
 
     rsx! {
-        MaterialIconStylesheet {}
+    // MaterialIconStylesheet {} // コメントアウト: フォント/アイコン依存を一時的に外す
         link { rel: "stylesheet", href: CSS_PATH }
         div { class: "sidebar-container",
             div { class: "button-container",

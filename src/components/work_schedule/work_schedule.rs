@@ -12,6 +12,7 @@ pub fn WorkSchedule(
     on_submit: EventHandler<WorkRecord>,
     show_input: Signal<bool>,
     show_settings: Signal<bool>,
+    timesheet_data: Vec<WorkRecord>,
 ) -> Element {
     let mut date: Signal<String> = use_signal(|| String::new());
     let mut start_time: Signal<String> = use_signal(|| String::new());

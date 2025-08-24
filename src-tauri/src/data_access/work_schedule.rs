@@ -40,7 +40,7 @@ pub async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
 }
 
 pub async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, String> {
-    let rows = match sqlx::query("SELECT * FROM work_schedule")
+    let rows: Vec<sqlx::sqlite::SqliteRow> = match sqlx::query("SELECT * FROM work_schedule")
         .fetch_all(pool())
         .await
     {
@@ -48,9 +48,9 @@ pub async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, String> {
         Err(e) => return Err(e.to_string()),
     };
 
-    let mut work_records = Vec::new();
+    let mut work_records: Vec<WorkRecord> = Vec::new();
 
-    if work_records.is_empty() {
+    if rows.is_empty() {
         return Ok(work_records);
     }
 

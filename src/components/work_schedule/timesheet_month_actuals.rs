@@ -1,10 +1,10 @@
-use chrono::{prelude::*, Duration};
-use dioxus::prelude::*;
-// use web_sys::console::log_1;
 use super::overlay::Overlay;
 use super::work_schedule::WorkSchedule;
+use chrono::{prelude::*, Duration};
+use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
+use web_sys::console::log_1;
 
 #[component]
 pub fn TimesheetMonthActuals() -> Element {
@@ -27,13 +27,14 @@ pub fn TimesheetMonthActuals() -> Element {
     let mut show_input: Signal<bool> = use_signal(|| false);
 
     use_future(move || async move {
-        let ini_result: bool =
+        let init_result: bool =
             invoke::<bool>("init_work_schedule_db", &serde_json::json!({})).await;
-        if ini_result {
+
+        if init_result {
             let fetched_data: Vec<WorkRecord> =
                 invoke::<Vec<WorkRecord>>("get_work_schedule_data", &serde_json::json!({})).await;
 
-            if work_data.read().is_empty() {
+            if fetched_data.is_empty() {
                 toast.set(Some((
                     "実績データがありません。勤務入力から登録してください".to_string(),
                     true,
@@ -71,7 +72,7 @@ pub fn TimesheetMonthActuals() -> Element {
         div { class: "grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5",
             for day in 1..=base_end_YMD.day() {
                 {
-                    let disp_date = NaiveDate::from_ymd_opt(
+                    let disp_date: NaiveDate = NaiveDate::from_ymd_opt(
                             base_YMD.map_or(0, |d| d.year()),
                             base_YMD.map_or(0, |d| d.month()),
                             day,
@@ -116,9 +117,13 @@ pub fn TimesheetMonthActuals() -> Element {
                                     }
                                 }
                             }
-                            // 将来: 実績データセル
-                            div { class: "h-5 text-[11px] text-slate-500 group-hover:text-slate-400 italic",
-                                "記録なし"
+                            // 将来: 実績データセクション
+                            div { class: "h-5 text-[11px] group-hover:text-slate-400 italic",
+                                if check_data_exists(&disp_date, &work_data.read()) {
+                                    div { class: "text-green-500", "記録あり" }
+                                } else {
+                                    div { class: "text-slate-500", "記録なし" }
+                                }
                             }
                         }
                     }
@@ -156,6 +161,7 @@ pub fn TimesheetMonthActuals() -> Element {
                                 },
                                 show_input: show_input.clone(),
                                 show_settings: show_settings.clone(),
+                                timesheet_data: work_data.read().to_vec(),
                             }
                         }
                     }
@@ -192,4 +198,16 @@ pub fn TimesheetMonthActuals() -> Element {
             None => rsx! {},
         }
     }
+}
+
+fn check_data_exists(disp_date: &NaiveDate, work_data: &Vec<WorkRecord>) -> bool {
+    log_1(&format!("Checking data for date: {}", disp_date).into());
+    log_1(&format!("Total records: {}", work_data.len()).into());
+    for record in work_data {
+        log_1(&format!("Checking record date: {}", record.date).into());
+        if record.date == disp_date.to_string() {
+            return true;
+        }
+    }
+    false
 }
