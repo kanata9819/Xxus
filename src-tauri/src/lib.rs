@@ -61,8 +61,18 @@ async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
 }
 
 #[tauri::command]
+async fn update_work_schedule(date: String, props: WorkRecord) -> Result<bool, String> {
+    ws::update_work_schedule(date, props).await
+}
+
+#[tauri::command]
 async fn delete_work_schedule_data() -> Result<(), String> {
     ws::delete_work_schedule_data().await
+}
+
+#[tauri::command]
+async fn delete_specific_schedule_data(date: String) -> Result<bool, String> {
+    ws::delete_specific_schedule_data(date).await
 }
 
 #[tauri::command]
@@ -121,7 +131,9 @@ pub fn run() {
             get_default_work_schedule,
             delete_specific_data,
             get_work_schedule_data,
-            db_path
+            db_path,
+            delete_specific_schedule_data,
+            update_work_schedule
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

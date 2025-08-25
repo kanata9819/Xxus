@@ -39,6 +39,22 @@ pub async fn add_work_schedule(props: WorkRecord) -> Result<bool, String> {
     Ok(true)
 }
 
+pub async fn update_work_schedule(date: String, props: WorkRecord) -> Result<bool, String> {
+    sqlx::query("UPDATE work_schedule SET start_time = ?1, end_time = ?2, rest_time = ?3, hourly_wage = ?4, minutes = ?5, amount = ?6, note = ?7 WHERE date = ?8")
+        .bind(props.start_time)
+        .bind(props.end_time)
+        .bind(props.rest_time)
+        .bind(props.hourly_wage)
+        .bind(props.minutes)
+        .bind(props.amount)
+        .bind(props.note)
+        .bind(date)
+        .execute(pool())
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
 pub async fn get_work_schedule_data() -> Result<Vec<WorkRecord>, String> {
     let rows: Vec<sqlx::sqlite::SqliteRow> = match sqlx::query("SELECT * FROM work_schedule")
         .fetch_all(pool())
@@ -75,4 +91,13 @@ pub async fn delete_work_schedule_data() -> Result<(), String> {
         .await
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+pub async fn delete_specific_schedule_data(date: String) -> Result<bool, String> {
+    sqlx::query("DELETE FROM work_schedule WHERE date = ?1")
+        .bind(date)
+        .execute(pool())
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(true)
 }

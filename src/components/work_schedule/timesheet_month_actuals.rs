@@ -146,9 +146,31 @@ pub fn TimesheetMonthActuals() -> Element {
                             WorkSchedule {
                                 on_submit: move |props: WorkRecord| {
                                     let mut toast_set = toast.clone();
-                                    let mut close_flag = show_input.clone();
-                                    work_data.set(vec![]);
                                     spawn(async move {
+                                        for data in work_data.read().iter() {
+                                            if data.date == props.date {
+                                                let ok: bool = invoke::<
+                                                    bool,
+                                                >(
+                                                        "update_work_schedule",
+                                                        &serde_json::json!({ "date" : data.date, "props" : props }),
+                                                    )
+                                                    .await;
+                                                if ok {
+                                                    toast_set
+                                                        .set(
+                                                            Some(("更新に成功しました".to_string(), true)),
+                                                        );
+                                                    return;
+                                                } else {
+                                                    toast_set
+                                                        .set(
+                                                            Some(("更新に失敗しました".to_string(), true)),
+                                                        );
+                                                    return;
+                                                }
+                                            }
+                                        }
                                         let ok: bool = invoke::<
                                             bool,
                                         >("add_work_schedule", &serde_json::json!({ "props" : props }))
@@ -163,7 +185,26 @@ pub fn TimesheetMonthActuals() -> Element {
                                         } else {
                                             toast_set.set(Some(("登録に失敗しました".to_string(), true)));
                                         }
-                                        close_flag.set(false);
+                                    });
+                                },
+                                on_delete: move |date: String| {
+                                    let mut toast_set = toast.clone();
+                                    work_data.set(vec![]);
+                                    spawn(async move {
+                                        let ok: bool = invoke::<
+                                            bool,
+                                        >("delete_specific_schedule_data", &serde_json::json!({ "date" : date }))
+                                            .await;
+                                        if ok {
+                                            toast_set.set(Some(("削除に成功しました".to_string(), true)));
+                                            let fetched_data: Vec<WorkRecord> = invoke::<
+                                                Vec<WorkRecord>,
+                                            >("get_work_schedule_data", &serde_json::json!({}))
+                                                .await;
+                                            work_data.set(fetched_data);
+                                        } else {
+                                            toast_set.set(Some(("削除に失敗しました".to_string(), true)));
+                                        }
                                     });
                                 },
                                 show_input: show_input.clone(),

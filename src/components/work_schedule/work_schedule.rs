@@ -19,6 +19,7 @@ struct LocalSignals {
 #[component]
 pub fn WorkSchedule(
     on_submit: EventHandler<WorkRecord>,
+    on_delete: EventHandler<String>,
     show_input: Signal<bool>,
     show_settings: Signal<bool>,
     timesheet_data_props: Vec<WorkRecord>,
@@ -33,10 +34,11 @@ pub fn WorkSchedule(
     let mut hourly_wage: Signal<String> = use_signal(|| String::new());
     let mut note: Signal<String> = use_signal(|| String::new());
     let displaying_date: Signal<String> = use_signal(|| display_date_props.clone());
-    let mut is_data_exist: Signal<bool> = use_signal(|| false);
     // 内部処理用シグナル
     let mut error: Signal<String> = use_signal(|| String::new());
     let mut loading: Signal<bool> = use_signal(|| false);
+    let mut initialized: Signal<bool> = use_signal(|| false);
+    let mut is_data_exist: Signal<bool> = use_signal(|| false);
     // シグナルをまとめる
     let signals: LocalSignals = LocalSignals {
         date: date,
@@ -46,21 +48,6 @@ pub fn WorkSchedule(
         hourly_wage: hourly_wage,
         note: note,
     };
-
-    // 実績データが存在すれば、表示内容を設定する
-    if check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string()) {
-        is_data_exist.set(true);
-        set_timesheet_data(
-            displaying_date.read().to_string(),
-            timesheet_data_props.clone(),
-            signals,
-        );
-    } else {
-        is_data_exist.set(false);
-        if let Some(default_data) = default_opt_sig.read().as_ref() {
-            set_default_data(default_data, signals, displaying_date.read().to_string());
-        }
-    }
 
     use_future(move || async move {
         let ini_result: bool =
@@ -78,6 +65,40 @@ pub fn WorkSchedule(
         }
     });
 
+    let time_sheet_data: Vec<WorkRecord> = timesheet_data_props.clone();
+    use_effect(move || {
+        if *initialized.read() {
+            return;
+        } else {
+            // 実績データが存在すれば、表示内容を設定する
+            if check_specific_data_exist(&time_sheet_data, displaying_date.read().to_string())
+            {
+                is_data_exist.set(true);
+                set_timesheet_data(
+                    displaying_date.read().to_string(),
+                    &time_sheet_data,
+                    signals.clone(),
+                );
+            } else {
+                is_data_exist.set(false);
+                if let Some(default_data) = default_opt_sig.read().as_ref() {
+                    set_default_data(
+                        default_data,
+                        signals.clone(),
+                        displaying_date.read().to_string(),
+                    );
+                    initialized.set(true);
+                }
+            }
+        }
+    });
+
+    use_effect(move || {
+        if *initialized.read() && !*show_input.read() {
+            initialized.set(false);
+        }
+    });
+
     let (minutes_opt, amount_opt) = {
         let minutes_opt = calc_minutes(&start_time(), &end_time(), &rest_time());
         let amount_opt = match (minutes_opt, parse_i32(&hourly_wage())) {
@@ -87,7 +108,7 @@ pub fn WorkSchedule(
         (minutes_opt, amount_opt)
     };
 
-    let is_exist_now = *is_data_exist.read();
+    let is_exist_now = check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string());
     let (badge_class, badge_text) = if is_exist_now {
         (
             "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
@@ -110,7 +131,6 @@ pub fn WorkSchedule(
         link { rel: "stylesheet", href: CSS_PATH }
         div { class: "modal-panel-dark",
             header { class: "p-4 flex flex-row items-center gap-4",
-                // 旧: div { class: "bg-green p-4 rounded", ... }
                 div { class: "{badge_class}",
                     // アイコン風ドット
                     span { class: "w-2 h-2 rounded-full bg-current opacity-70" }
@@ -118,7 +138,6 @@ pub fn WorkSchedule(
                 }
                 // ページ全体の余白のみ（背景は周囲のダークに合わせる）
                 div { class: "p-4 flex flex-row items-center gap-4",
-
                     "勤務実績"
                     button {
                         class: "px-4 py-2 rounded bg-blue-600 text-white",
@@ -227,6 +246,7 @@ pub fn WorkSchedule(
                                 start_time.set(String::new());
                                 end_time.set(String::new());
                                 hourly_wage.set(String::new());
+                                rest_time.set(String::new());
                                 note.set(String::new());
                                 error.set(String::new());
                             },
@@ -242,17 +262,17 @@ pub fn WorkSchedule(
                                 }
                                 loading.set(true);
                                 match validate(
-                                    &date(),
-                                    &start_time(),
-                                    &end_time(),
-                                    &rest_time(),
-                                    &hourly_wage(),
+                                    &date.read(),
+                                    &start_time.read(),
+                                    &end_time.read(),
+                                    &rest_time.read(),
+                                    &hourly_wage.read(),
                                 ) {
                                     Ok(()) => {
                                         let Some(minutes) = calc_minutes(
-                                            &start_time(),
-                                            &end_time(),
-                                            &rest_time(),
+                                            &start_time.read(),
+                                            &end_time.read(),
+                                            &rest_time.read(),
                                         ) else {
                                             error
                                                 .set(
@@ -272,14 +292,14 @@ pub fn WorkSchedule(
                                         };
                                         let amount = wage.saturating_mul(minutes) / 60;
                                         let record = WorkRecord {
-                                            date: date(),
-                                            start_time: start_time(),
-                                            end_time: end_time(),
-                                            rest_time: rest_time(),
+                                            date: date.read().to_string(),
+                                            start_time: start_time.read().to_string(),
+                                            end_time: end_time.read().to_string(),
+                                            rest_time: rest_time.read().to_string(),
                                             hourly_wage: wage,
                                             minutes,
                                             amount,
-                                            note: note(),
+                                            note: note.read().to_string(),
                                         };
                                         error.set(String::new());
                                         on_submit.call(record);
@@ -288,11 +308,24 @@ pub fn WorkSchedule(
                                 }
                                 loading.set(false);
                             },
-                            if loading() {
+                            if *loading.read() {
                                 "保存中…"
                             } else {
                                 "登録"
                             }
+                        }
+                        button {
+                            class: "px-3 py-1.5 rounded-md bg-sky-600/80 hover:bg-sky-600 text-white text-xs font-semibold tracking-wide shadow transition",
+                            onclick: move |_| {
+                                if *loading.read() || !*is_data_exist.read() {
+                                    error.set("削除できるデータがありません。".into());
+                                    return;
+                                }
+                                loading.set(true);
+                                on_delete.call(date.read().to_string());
+                                loading.set(false);
+                            },
+                            "削除"
                         }
                     }
                 }
@@ -364,7 +397,7 @@ fn format_minutes(m: i32) -> String {
 
 fn set_timesheet_data(
     display_date: String,
-    timesheet_data: Vec<WorkRecord>,
+    timesheet_data: &Vec<WorkRecord>,
     mut signals: LocalSignals,
 ) {
     for record in timesheet_data.iter() {
