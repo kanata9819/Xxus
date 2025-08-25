@@ -1,4 +1,5 @@
 use super::overlay::Overlay;
+use super::salary_preview::SalaryPreview;
 use super::work_schedule::WorkSchedule;
 use chrono::{prelude::*, Duration};
 use dioxus::prelude::*;
@@ -131,6 +132,9 @@ pub fn TimesheetMonthActuals() -> Element {
                 }
             }
         }
+
+        SalaryPreview { work_data: work_data.read().to_vec() }
+
         // 勤務入力オーバーレイ
         if *show_input.read() {
             div { class: "fixed inset-0 z-40",
