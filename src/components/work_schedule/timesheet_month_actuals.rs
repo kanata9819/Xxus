@@ -26,7 +26,6 @@ pub fn TimesheetMonthActuals() -> Element {
     let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let mut show_input: Signal<bool> = use_signal(|| false);
-    let mut is_updated_sig: Signal<bool> = use_signal(|| false);
 
     use_future(move || async move {
         let init_result: bool =
@@ -152,55 +151,37 @@ pub fn TimesheetMonthActuals() -> Element {
                                 on_submit: move |props: WorkRecord| {
                                     let mut toast_set = toast.clone();
                                     spawn(async move {
-                                        for data in work_data.read().iter() {
-                                            if data.date == props.date {
-                                                let is_updated: bool = invoke::<
-                                                    bool,
-                                                >(
-                                                        "update_work_schedule",
-                                                        &serde_json::json!({ "date" : data.date, "props" : props }),
-                                                    )
-                                                    .await;
-                                                is_updated_sig.set(is_updated);
-                                                if *is_updated_sig.read() {
-                                                    toast_set
-                                                        .set(
-                                                            Some(("更新に成功しました".to_string(), true)),
-                                                        );
-                                                } else {
-                                                    toast_set
-                                                        .set(
-                                                            Some(("更新に失敗しました".to_string(), true)),
-                                                        );
-                                                    return;
-                                                }
-                                            }
-                                        }
-                                        if *is_updated_sig.read() {
-                                            work_data.set(vec![]);
-                                            let fetched_data: Vec<WorkRecord> = invoke::<
-                                                Vec<WorkRecord>,
-                                            >("get_work_schedule_data", &serde_json::json!({}))
+                                        let is_exist: bool = work_data.read().iter().any(|r| r.date == props.date);
+                                        if is_exist {
+                                            let update_result: bool = invoke::<
+                                                bool,
+                                            >("update_work_schedule", &serde_json::json!({ "props" : props }))
                                                 .await;
-                                            work_data.set(fetched_data);
+                                            if update_result {
+                                                toast_set
+                                                    .set(Some(("更新に成功しました".to_string(), true)));
+                                            } else {
+                                                toast_set
+                                                    .set(Some(("更新に失敗しました".to_string(), true)));
+                                            }
                                         } else {
-                                            let ok: bool = invoke::<
+                                            let insert_result: bool = invoke::<
                                                 bool,
                                             >("add_work_schedule", &serde_json::json!({ "props" : props }))
                                                 .await;
-                                            if ok {
+                                            if insert_result {
                                                 toast_set
                                                     .set(Some(("登録に成功しました".to_string(), true)));
-                                                let fetched_data: Vec<WorkRecord> = invoke::<
-                                                    Vec<WorkRecord>,
-                                                >("get_work_schedule_data", &serde_json::json!({}))
-                                                    .await;
-                                                work_data.set(fetched_data);
                                             } else {
                                                 toast_set
                                                     .set(Some(("登録に失敗しました".to_string(), true)));
                                             }
                                         }
+                                        let fetched_data: Vec<WorkRecord> = invoke::<
+                                            Vec<WorkRecord>,
+                                        >("get_work_schedule_data", &serde_json::json!({}))
+                                            .await;
+                                        work_data.set(fetched_data);
                                     });
                                 },
                                 on_delete: move |date: String| {
