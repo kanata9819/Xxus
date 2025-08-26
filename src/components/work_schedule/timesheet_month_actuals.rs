@@ -26,6 +26,7 @@ pub fn TimesheetMonthActuals() -> Element {
     let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let mut show_input: Signal<bool> = use_signal(|| false);
+    let mut is_updated_sig: Signal<bool> = use_signal(|| false);
 
     use_future(move || async move {
         let init_result: bool =
@@ -153,19 +154,19 @@ pub fn TimesheetMonthActuals() -> Element {
                                     spawn(async move {
                                         for data in work_data.read().iter() {
                                             if data.date == props.date {
-                                                let ok: bool = invoke::<
+                                                let is_updated: bool = invoke::<
                                                     bool,
                                                 >(
                                                         "update_work_schedule",
                                                         &serde_json::json!({ "date" : data.date, "props" : props }),
                                                     )
                                                     .await;
-                                                if ok {
+                                                is_updated_sig.set(is_updated);
+                                                if *is_updated_sig.read() {
                                                     toast_set
                                                         .set(
                                                             Some(("更新に成功しました".to_string(), true)),
                                                         );
-                                                    return;
                                                 } else {
                                                     toast_set
                                                         .set(
@@ -175,19 +176,30 @@ pub fn TimesheetMonthActuals() -> Element {
                                                 }
                                             }
                                         }
-                                        let ok: bool = invoke::<
-                                            bool,
-                                        >("add_work_schedule", &serde_json::json!({ "props" : props }))
-                                            .await;
-                                        if ok {
-                                            toast_set.set(Some(("登録に成功しました".to_string(), true)));
+                                        if *is_updated_sig.read() {
+                                            work_data.set(vec![]);
                                             let fetched_data: Vec<WorkRecord> = invoke::<
                                                 Vec<WorkRecord>,
                                             >("get_work_schedule_data", &serde_json::json!({}))
                                                 .await;
                                             work_data.set(fetched_data);
                                         } else {
-                                            toast_set.set(Some(("登録に失敗しました".to_string(), true)));
+                                            let ok: bool = invoke::<
+                                                bool,
+                                            >("add_work_schedule", &serde_json::json!({ "props" : props }))
+                                                .await;
+                                            if ok {
+                                                toast_set
+                                                    .set(Some(("登録に成功しました".to_string(), true)));
+                                                let fetched_data: Vec<WorkRecord> = invoke::<
+                                                    Vec<WorkRecord>,
+                                                >("get_work_schedule_data", &serde_json::json!({}))
+                                                    .await;
+                                                work_data.set(fetched_data);
+                                            } else {
+                                                toast_set
+                                                    .set(Some(("登録に失敗しました".to_string(), true)));
+                                            }
                                         }
                                     });
                                 },
