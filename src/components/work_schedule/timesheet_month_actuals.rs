@@ -10,19 +10,33 @@ use tauri_sys::core::invoke;
 #[component]
 pub fn TimesheetMonthActuals() -> Element {
     let today: NaiveDate = Local::now().date_naive();
-    let current_year: i32 = today.year();
-    let current_month: u32 = today.month();
+    let mut current_year_sig: Signal<i32> = use_signal(|| today.year());
+    let mut current_month_sig: Signal<u32> = use_signal(|| today.month());
     let current_day: u32 = today.day();
-    let base_YMD: Option<NaiveDate> = NaiveDate::from_ymd_opt(current_year, current_month, 1);
+    let base_YMD: Option<NaiveDate> =
+        NaiveDate::from_ymd_opt(*current_year_sig.read(), *current_month_sig.read(), 1);
     let base_start_next_month_YMD: Option<NaiveDate> =
-        NaiveDate::from_ymd_opt(current_year, current_month + 1, 1);
+        NaiveDate::from_ymd_opt(*current_year_sig.read(), *current_month_sig.read() + 1, 1);
     let show_settings: Signal<bool> = use_signal(|| false);
-    let base_end_YMD: NaiveDate = base_start_next_month_YMD.unwrap() - Duration::days(1);
+    let base_end_YMD: NaiveDate = match base_start_next_month_YMD {
+        Some(date) => date - Duration::days(1),
+        None => NaiveDate::from_ymd_opt(1970, 1, 1).unwrap(),
+    };
 
-    let mut selected_date: Signal<NaiveDate> =
-        use_signal(|| NaiveDate::from_ymd_opt(current_year, current_month, current_day).unwrap());
-    let mut display_date: NaiveDate =
-        NaiveDate::from_ymd_opt(current_year, current_month, current_day).unwrap();
+    let mut selected_date: Signal<NaiveDate> = use_signal(|| {
+        NaiveDate::from_ymd_opt(
+            *current_year_sig.read(),
+            *current_month_sig.read(),
+            current_day,
+        )
+        .unwrap()
+    });
+    let mut display_date: NaiveDate = NaiveDate::from_ymd_opt(
+        *current_year_sig.read(),
+        *current_month_sig.read(),
+        current_day,
+    )
+    .unwrap();
     let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let mut show_input: Signal<bool> = use_signal(|| false);
@@ -50,12 +64,29 @@ pub fn TimesheetMonthActuals() -> Element {
         // ヘッダー部
         div { class: "mb-4 flex items-end gap-3",
             div { class: "text-2xl font-semibold tracking-wide text-slate-100",
-                "{current_year}"
+                "{current_year_sig}"
                 span { class: "ml-1 text-base font-normal text-slate-400", "年" }
             }
+            button {
+                class: "w-6 h-6 flex items-center justify-center text-xs rounded hover:bg-slate-700",
+                onclick: move |_| {
+                    let current_month: u32 = *current_month_sig.clone().read();
+                    if current_month > 1 {
+                        current_month_sig.set(current_month - 1);
+                    } else {
+                        let current_year: i32 = *current_year_sig.read();
+                        current_year_sig.set(current_year - 1);
+                        current_month_sig.set(12);
+                    }
+                },
+                "◀"
+            }
             div { class: "text-2xl font-semibold text-slate-100",
-                "{current_month}"
+                "{current_month_sig.read().to_string()}"
                 span { class: "ml-1 text-base font-normal text-slate-400", "月" }
+            }
+            button { class: "w-6 h-6 flex items-center justify-center text-xs rounded hover:bg-slate-700",
+                "▶"
             }
             div { class: "ml-auto flex items-center gap-3",
                 div { class: "px-3 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300 ring-1 ring-white/10",
@@ -109,7 +140,9 @@ pub fn TimesheetMonthActuals() -> Element {
                                 show_input.set(true);
                             },
                             div { class: "flex items-baseline gap-2",
-                                span { class: "text-sm font-semibold tracking-wide {base_color}", "{current_month}月{day}日" }
+                                span { class: "text-sm font-semibold tracking-wide {base_color}",
+                                    "{current_month_sig}月{day}日"
+                                }
                                 span { class: "text-[10px] md:text-[11px] tracking-wider text-slate-400 group-hover:text-slate-300 transition",
                                     "({weekday})"
                                 }
