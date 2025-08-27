@@ -181,8 +181,7 @@ pub fn TimesheetMonthActuals() -> Element {
             }
         }
 
-        SalaryPreview { work_data: work_data.read().to_vec() }
-
+        SalaryPreview { work_data, selected_date }
         // 勤務入力オーバーレイ
         if *show_input.read() {
             div { class: "fixed inset-0 z-40",
