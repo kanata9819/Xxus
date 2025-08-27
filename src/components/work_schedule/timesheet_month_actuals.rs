@@ -89,12 +89,23 @@ pub fn TimesheetMonthActuals() -> Element {
                 "{current_month_sig.read().to_string()}"
                 span { class: "ml-1 text-base font-normal text-slate-400", "月" }
             }
-            button { class: "w-6 h-6 flex items-center justify-center text-xs rounded hover:bg-slate-700",
+            button {
+                class: "w-6 h-6 flex items-center justify-center text-xs rounded hover:bg-slate-700",
+                onclick: move |_| {
+                    let current_month: u32 = *current_month_sig.clone().read();
+                    if current_month < 12 {
+                        current_month_sig.set(current_month + 1);
+                    } else {
+                        let current_year: i32 = *current_year_sig.read();
+                        current_year_sig.set(current_year + 1);
+                        current_month_sig.set(1);
+                    }
+                },
                 "▶"
             }
             div { class: "ml-auto flex items-center gap-3",
                 div { class: "px-3 py-1 text-xs rounded-full bg-slate-700/50 text-slate-300 ring-1 ring-white/10",
-                    "本日: {current_day}日"
+                    "本日: {today.year()}年{today.month()}月{today.day()}日"
                 }
                 button {
                     class: "px-3 py-1.5 rounded-md bg-sky-600/80 hover:bg-sky-600 text-white text-xs font-semibold tracking-wide shadow transition",
@@ -123,7 +134,7 @@ pub fn TimesheetMonthActuals() -> Element {
                         Weekday::Sat => "土",
                         Weekday::Sun => "日",
                     };
-                    let is_today = display_date.day() == current_day;
+                    let is_today = display_date == today;
                     let base_color = match weekday {
                         "土" => "text-blue-400",
                         "日" => "text-rose-400",
