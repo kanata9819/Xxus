@@ -71,8 +71,7 @@ pub fn WorkSchedule(
             return;
         } else {
             // 実績データが存在すれば、表示内容を設定する
-            if check_specific_data_exist(&time_sheet_data, displaying_date.read().to_string())
-            {
+            if check_specific_data_exist(&time_sheet_data, displaying_date.read().to_string()) {
                 is_data_exist.set(true);
                 set_timesheet_data(
                     displaying_date.read().to_string(),
@@ -108,21 +107,22 @@ pub fn WorkSchedule(
         (minutes_opt, amount_opt)
     };
 
-    let is_exist_now = check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string());
+    let is_exist_now =
+        check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string());
     let (badge_class, badge_text) = if is_exist_now {
         (
             "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
-             bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/40
-             shadow-inner shadow-emerald-900/40 backdrop-blur-sm
-             flex items-center gap-1",
+            bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/40
+            shadow-inner shadow-emerald-900/40 backdrop-blur-sm
+            flex items-center gap-1",
             "訂正",
         )
     } else {
         (
             "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
-             bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/40
-             shadow-inner shadow-rose-900/40 backdrop-blur-sm
-             flex items-center gap-1",
+            bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/40
+            shadow-inner shadow-rose-900/40 backdrop-blur-sm
+            flex items-center gap-1",
             "新規",
         )
     };
