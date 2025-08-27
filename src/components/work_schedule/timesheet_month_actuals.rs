@@ -15,8 +15,11 @@ pub fn TimesheetMonthActuals() -> Element {
     let current_day: u32 = today.day();
     let base_YMD: Option<NaiveDate> =
         NaiveDate::from_ymd_opt(*current_year_sig.read(), *current_month_sig.read(), 1);
-    let base_start_next_month_YMD: Option<NaiveDate> =
-        NaiveDate::from_ymd_opt(*current_year_sig.read(), *current_month_sig.read() + 1, 1);
+    let base_start_next_month_YMD: Option<NaiveDate> = if *current_month_sig.read() == 12 {
+        NaiveDate::from_ymd_opt(*current_year_sig.read() + 1, 1, 1)
+    } else {
+        NaiveDate::from_ymd_opt(*current_year_sig.read(), *current_month_sig.read() + 1, 1)
+    };
     let show_settings: Signal<bool> = use_signal(|| false);
     let base_end_YMD: NaiveDate = match base_start_next_month_YMD {
         Some(date) => date - Duration::days(1),
@@ -31,6 +34,7 @@ pub fn TimesheetMonthActuals() -> Element {
         )
         .unwrap()
     });
+
     let mut display_date: NaiveDate = NaiveDate::from_ymd_opt(
         *current_year_sig.read(),
         *current_month_sig.read(),
