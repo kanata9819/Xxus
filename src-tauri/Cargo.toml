@@ -29,12 +29,9 @@ dotenv = "0.15.0"
 # Migrate from rusqlite to sqlx (async). rusqlite removed.
 sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls"] }
 shared-types = { path = "../crate/shared-types" }
+payroll-core = { path = "../crate/payroll-core" }
 chrono = "0.4.41"
 dirs = "5"
-
-[features]
-ssr = []
-tauri = []
 
 # デバッグ用設定
 [profile.dev]

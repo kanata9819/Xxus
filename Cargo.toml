@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 dioxus = { version = "0.6", features = ["web"] }
 dioxus-logger = "0.6"
-wasm-bindgen = {version = "0.2.100", features = ["serde-serialize", "serde"] }
+wasm-bindgen = { version = "0.2.100", features = ["serde-serialize", "serde"] }
 wasm-bindgen-futures = "0.4"
 web-sys = "0.3"
 serde = { version = "1", features = ["derive"] }
@@ -15,14 +15,18 @@ serde-wasm-bindgen = "0.6"
 dioxus-router = "0.6.3"
 dioxus-material-icons = "3"
 dotenv = "0.15.0"
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v2", default-features = false, features = ["core", "event"] }
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v2", default-features = false, features = [
+    "core",
+    "event",
+] }
 shared-types = { path = "crate/shared-types" }
+payroll-core = { path = "crate/payroll-core" }
 serde_json = "1.0.142"
 chrono = "0.4.41"
 num-format = "0.4.4"
 
 [workspace]
-members = [ "crate/shared-types","src-tauri"]
+members = ["crate/payroll-core", "crate/shared-types", "src-tauri"]
 
 [features]
 ssr = []
@@ -39,3 +43,5 @@ inherits = "dev"
 
 [workspace.dependencies]
 serde-wasm-bindgen = "0.6.5"
+shared-types = { path = "crate/shared-types" }
+payroll_core = { path = "crate/payroll_core" }
