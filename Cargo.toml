@@ -16,13 +16,13 @@ dioxus-router = "0.6.3"
 dioxus-material-icons = "3"
 dotenv = "0.15.0"
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v2", default-features = false, features = ["core", "event"] }
-shared-types = { path = "./shared-types" }
+shared-types = { path = "crate/shared-types" }
 serde_json = "1.0.142"
 chrono = "0.4.41"
 num-format = "0.4.4"
 
 [workspace]
-members = [ "shared-types","src-tauri"]
+members = [ "crate/shared-types","src-tauri"]
 
 [features]
 ssr = []
