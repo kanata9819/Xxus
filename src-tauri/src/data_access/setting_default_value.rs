@@ -9,10 +9,10 @@ pub async fn init_default_value_db() -> Result<(), String> {
             date        TEXT    NOT NULL,
             start_time  TEXT    NOT NULL,
             end_time    TEXT    NOT NULL,
-            hourly_wage INTEGER  NOT NULL,
+            hourly_wage INTEGER NOT NULL,
             rest_time   TEXT    NOT NULL,
-            minutes     INTEGER  NOT NULL,
-            amount      INTEGER  NOT NULL,
+            minutes     INTEGER NOT NULL,
+            amount      INTEGER NOT NULL,
             note        TEXT
         );
     "#;
