@@ -27,34 +27,34 @@ pub fn WorkSchedule(
 ) -> Element {
     // 画面表示内容シグナル
     let mut default_opt_sig: Signal<Option<WorkRecord>> = use_signal(|| None);
-    let mut date: Signal<String> = use_signal(|| String::new());
-    let mut start_time: Signal<String> = use_signal(|| String::new());
-    let mut end_time: Signal<String> = use_signal(|| String::new());
-    let mut rest_time: Signal<String> = use_signal(|| String::new());
-    let mut hourly_wage: Signal<String> = use_signal(|| String::new());
-    let mut note: Signal<String> = use_signal(|| String::new());
+    let mut date: Signal<String> = use_signal(String::new);
+    let mut start_time: Signal<String> = use_signal(String::new);
+    let mut end_time: Signal<String> = use_signal(String::new);
+    let mut rest_time: Signal<String> = use_signal(String::new);
+    let mut hourly_wage: Signal<String> = use_signal(String::new);
+    let mut note: Signal<String> = use_signal(String::new);
     let displaying_date: Signal<String> = use_signal(|| display_date_props.clone());
     // 内部処理用シグナル
-    let mut error: Signal<String> = use_signal(|| String::new());
+    let mut error: Signal<String> = use_signal(String::new);
     let mut loading: Signal<bool> = use_signal(|| false);
     let mut initialized: Signal<bool> = use_signal(|| false);
     let mut is_data_exist: Signal<bool> = use_signal(|| false);
     // シグナルをまとめる
     let signals: LocalSignals = LocalSignals {
-        date: date,
-        start_time: start_time,
-        end_time: end_time,
-        rest_time: rest_time,
-        hourly_wage: hourly_wage,
-        note: note,
+        date,
+        start_time,
+        end_time,
+        rest_time,
+        hourly_wage,
+        note,
     };
 
     use_future(move || async move {
         let ini_result: bool =
             invoke::<bool>("init_default_value_db", &serde_json::json!({})).await;
 
-        if ini_result {
-            if date.read().is_empty() {
+        if ini_result
+            && date.read().is_empty() {
                 let fetched_default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>(
                     "get_default_work_schedule",
                     &serde_json::json!({}),
@@ -62,13 +62,11 @@ pub fn WorkSchedule(
                 .await;
                 default_opt_sig.set(fetched_default_opt);
             }
-        }
     });
 
     let time_sheet_data: Vec<WorkRecord> = timesheet_data_props.clone();
     use_effect(move || {
         if *initialized.read() {
-            return;
         } else {
             // 実績データが存在すれば、表示内容を設定する
             if check_specific_data_exist(&time_sheet_data, displaying_date.read().to_string()) {

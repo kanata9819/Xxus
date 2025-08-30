@@ -7,7 +7,7 @@ static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool)>) -> Element {
-    let mut show_settings = show_settings.clone();
+    let mut show_settings = show_settings;
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
@@ -33,8 +33,8 @@ pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool
                     div { class: "p-4 overflow-y-auto max-h-[75vh]",
                         SettingDefaultValue {
                             on_submit: move |record: WorkRecord| {
-                                let on_toast = on_toast.clone();
-                                let mut show = show_settings.clone();
+                                let on_toast = on_toast;
+                                let mut show = show_settings;
                                 spawn(async move {
                                     let ok: bool = invoke::<
                                         bool,

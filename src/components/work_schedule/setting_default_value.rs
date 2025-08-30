@@ -6,11 +6,11 @@ static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
-    let mut start_time: Signal<String> = use_signal(|| String::new());
-    let mut end_time: Signal<String> = use_signal(|| String::new());
-    let mut rest_time: Signal<String> = use_signal(|| String::new());
-    let mut hourly_wage: Signal<String> = use_signal(|| String::new());
-    let mut error: Signal<String> = use_signal(|| String::new());
+    let mut start_time: Signal<String> = use_signal(String::new);
+    let mut end_time: Signal<String> = use_signal(String::new);
+    let mut rest_time: Signal<String> = use_signal(String::new);
+    let mut hourly_wage: Signal<String> = use_signal(String::new);
+    let mut error: Signal<String> = use_signal(String::new);
     let mut loading: Signal<bool> = use_signal(|| false);
 
     use_effect(move || {

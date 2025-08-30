@@ -41,12 +41,10 @@ pub fn List(props: ListProps) -> Element {
                                     } else {
                                         "income-item group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-white/15 bg-white/5 hover:bg-emerald-500/10 hover:border-emerald-400/40 shadow-sm transition-colors duration-200"
                                     }
+                                } else if is_active {
+                                    "expense-item active group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-rose-400/50 bg-rose-500/10 hover:bg-rose-500/20 ring-1 ring-rose-400 shadow-sm transition-colors duration-200"
                                 } else {
-                                    if is_active {
-                                        "expense-item active group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-rose-400/50 bg-rose-500/10 hover:bg-rose-500/20 ring-1 ring-rose-400 shadow-sm transition-colors duration-200"
-                                    } else {
-                                        "expense-item group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-white/15 bg-white/5 hover:bg-rose-500/10 hover:border-rose-400/40 shadow-sm transition-colors duration-200"
-                                    }
+                                    "expense-item group relative flex items-start gap-4 rounded-xl px-5 py-4 border border-white/15 bg-white/5 hover:bg-rose-500/10 hover:border-rose-400/40 shadow-sm transition-colors duration-200"
                                 };
                                 let amount_class: &str = if flow_type == "in" {
                                     "amount text-emerald-400 font-semibold tracking-wide text-sm md:text-base"
@@ -57,7 +55,7 @@ pub fn List(props: ListProps) -> Element {
                                     li {
                                         class: "{li_class}",
                                         onclick: {
-                                            let mut selected_id_sig: Signal<Option<i32>> = selected_id.clone();
+                                            let mut selected_id_sig: Signal<Option<i32>> = selected_id;
                                             move |_| {
                                                 selected_id_sig
                                                     .set(

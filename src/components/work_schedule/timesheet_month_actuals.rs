@@ -77,7 +77,7 @@ pub fn TimesheetMonthActuals() -> Element {
         }),
     };
 
-    let mut work_data: Signal<Vec<WorkRecord>> = use_signal(|| vec![]);
+    let mut work_data: Signal<Vec<WorkRecord>> = use_signal(std::vec::Vec::new);
     let mut toast: Signal<Option<(String, bool)>> = use_signal(|| None);
     let mut show_input: Signal<bool> = use_signal(|| false);
 
@@ -237,10 +237,7 @@ pub fn TimesheetMonthActuals() -> Element {
             }
         }
 
-        SalaryPreview {
-            work_data,
-            display_month: date_info_for_display.display_month.clone(),
-        }
+        SalaryPreview { work_data, display_month: date_info_for_display.display_month }
 
         // 勤務入力オーバーレイ
         if *show_input.read() {
@@ -256,7 +253,7 @@ pub fn TimesheetMonthActuals() -> Element {
                         div { class: "p-5 pb-6",
                             WorkSchedule {
                                 on_submit: move |props: WorkRecord| {
-                                    let mut toast_set = toast.clone();
+                                    let mut toast_set = toast;
                                     spawn(async move {
                                         let is_exist: bool = work_data.read().iter().any(|r| r.date == props.date);
                                         if is_exist {
@@ -292,7 +289,7 @@ pub fn TimesheetMonthActuals() -> Element {
                                     });
                                 },
                                 on_delete: move |date: String| {
-                                    let mut toast_set = toast.clone();
+                                    let mut toast_set = toast;
                                     work_data.set(vec![]);
                                     spawn(async move {
                                         let ok: bool = invoke::<
@@ -311,8 +308,8 @@ pub fn TimesheetMonthActuals() -> Element {
                                         }
                                     });
                                 },
-                                show_input: show_input.clone(),
-                                show_settings: show_settings.clone(),
+                                show_input,
+                                show_settings,
                                 timesheet_data_props: work_data.read().to_vec(),
                                 display_date_props: selected_date.to_string(),
                             }
@@ -325,7 +322,7 @@ pub fn TimesheetMonthActuals() -> Element {
         // 設定オーバーレイ
         if *show_settings.read() {
             Overlay {
-                show_settings: show_settings.clone(),
+                show_settings,
                 on_toast: move |(msg, is_err): (String, bool)| {
                     toast.set(Some((msg, is_err)));
                 },

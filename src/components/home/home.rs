@@ -19,11 +19,11 @@ struct HomeSignals {
 
 #[component]
 pub fn Home() -> Element {
-    let item_name: Signal<String> = use_signal(|| String::new());
+    let item_name: Signal<String> = use_signal(String::new);
     let total_amount: Signal<i32> = use_signal(|| 0);
     let expense_amount: Signal<i32> = use_signal(|| 0);
     let income_amount: Signal<i32> = use_signal(|| 0);
-    let cash_flows: Signal<Vec<CashFlow>> = use_signal(|| vec![]);
+    let cash_flows: Signal<Vec<CashFlow>> = use_signal(std::vec::Vec::new);
 
     let mut disp_ex_input: Signal<bool> = use_signal(|| false);
     let mut disp_in_input: Signal<bool> = use_signal(|| false);
@@ -38,15 +38,15 @@ pub fn Home() -> Element {
     };
 
     use_future(move || async move {
-        handle_load(home_strc.clone()).await;
+        handle_load(home_strc).await;
     });
 
     use_effect(move || {
-        if *need_refresh.read() == true {
+        if *need_refresh.read() {
             initialize(home_strc);
 
             spawn_local(async move {
-                handle_load(home_strc.clone()).await;
+                handle_load(home_strc).await;
             });
 
             need_refresh.set(false);
@@ -71,7 +71,7 @@ pub fn Home() -> Element {
                                 handle_delete_evt: {
                                     move |id: i32| {
                                         spawn_local(async move {
-                                            handle_delete(id, home_strc.clone()).await;
+                                            handle_delete(id, home_strc).await;
                                         });
                                     }
                                 },
@@ -98,7 +98,7 @@ pub fn Home() -> Element {
                                 handle_delete_evt: {
                                     move |id: i32| {
                                         spawn_local(async move {
-                                            handle_delete(id, home_strc.clone()).await;
+                                            handle_delete(id, home_strc).await;
                                         });
                                     }
                                 },

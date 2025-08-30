@@ -14,7 +14,7 @@ pub fn Inputs(
     parent_need_refresh: Signal<bool>,
     disp_input: Signal<bool>,
 ) -> Element {
-    let mut input_name: Signal<String> = use_signal(|| String::new());
+    let mut input_name: Signal<String> = use_signal(String::new);
     let mut input_amount: Signal<i32> = use_signal(|| 0);
 
     rsx! {
@@ -51,16 +51,14 @@ pub fn Inputs(
                 button {
                     class: "btn btn-primary",
                     onclick: move |_: MouseEvent| async move {
-                        {
-                            handle_submit(
+                        handle_submit(
                                     input_name(),
                                     input_amount(),
                                     flow_type,
                                     parent_need_refresh,
                                     disp_input,
                                 )
-                                .await
-                        };
+                                .await;
                     },
                     "追加"
                 }

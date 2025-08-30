@@ -3,9 +3,9 @@ static CSS_PATH: Asset = asset!("assets/styles.css");
 
 #[component]
 pub fn CalcHourlyWage() -> Element {
-    let salary: Signal<String> = use_signal(|| String::new());
-    let working_hours: Signal<String> = use_signal(|| String::new());
-    let mut calculated_wage: Signal<String> = use_signal(|| String::new());
+    let salary: Signal<String> = use_signal(String::new);
+    let working_hours: Signal<String> = use_signal(String::new);
+    let mut calculated_wage: Signal<String> = use_signal(String::new);
 
     use_effect(move || {
         let result: Result<String, Box<dyn std::error::Error>> =
@@ -79,13 +79,13 @@ fn calc_hourly_wage(
     salary: String,
     working_hours: String,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let hourly_wage: i64;
+    
 
     if salary.is_empty() || working_hours.is_empty() {
         return Err("error".into());
     }
 
-    hourly_wage = salary.parse::<i64>()? / working_hours.parse::<i64>()?;
+    let hourly_wage: i64 = salary.parse::<i64>()? / working_hours.parse::<i64>()?;
 
     Ok(hourly_wage.to_string())
 }
