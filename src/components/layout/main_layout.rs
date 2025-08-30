@@ -1,4 +1,4 @@
-use crate::components::sidebar::sidebar::Sidebar;
+use crate::components::sidebar::sidebar_panel::Sidebar;
 use crate::enums::enum_global::AppRoute;
 use dioxus::prelude::*;
 use dioxus_router::prelude::Outlet;

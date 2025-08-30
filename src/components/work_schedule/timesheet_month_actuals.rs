@@ -1,6 +1,6 @@
 use super::overlay::Overlay;
 use super::salary_preview::SalaryPreview;
-use super::work_schedule::WorkSchedule;
+use super::work_schedule_panel::WorkSchedule;
 use chrono::{prelude::*, Duration};
 use dioxus::prelude::*;
 use shared_types::WorkRecord;

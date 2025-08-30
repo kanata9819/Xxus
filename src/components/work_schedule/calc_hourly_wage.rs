@@ -79,8 +79,6 @@ fn calc_hourly_wage(
     salary: String,
     working_hours: String,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    
-
     if salary.is_empty() || working_hours.is_empty() {
         return Err("error".into());
     }

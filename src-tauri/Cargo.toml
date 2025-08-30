@@ -32,13 +32,3 @@ shared-types = { path = "../crate/shared-types" }
 payroll-core = { path = "../crate/payroll-core" }
 chrono = { version = "0.4.41", features = ["serde"] }
 dirs = "5"
-
-# デバッグ用設定
-[profile.dev]
-debug = true
-opt-level = 0
-overflow-checks = true
-
-[profile.release]
-debug = false
-opt-level = 3

@@ -1,6 +1,6 @@
-use crate::components::home::home::Home;
+use crate::components::home::home_panel::Home;
 use crate::components::layout::main_layout::MainLayout;
-use crate::components::settings::settings::Settings;
+use crate::components::settings::settings_panel::Settings;
 use crate::components::work_schedule::work_schedule_route::WorkScheduleRoute;
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;

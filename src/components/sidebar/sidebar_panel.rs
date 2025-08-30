@@ -21,15 +21,17 @@ fn NavItem(props: NavItemInfo) -> Element {
             class: if props.active { "sidebar-button active" } else { "sidebar-button" },
             onclick: props.handle_click,
             // icon: props.icon,
-            span { class: "inline-block w-6 text-center mr-1", {
-                match props.name {
-                    "home" => "🏠",
-                    "work" => "🗂",
-                    "settings" => "⚙️",
-                    _ => "•",
+            span { class: "inline-block w-6 text-center mr-1",
+                {
+                    match props.name {
+                        "home" => "🏠",
+                        "work" => "🗂",
+                        "settings" => "⚙️",
+                        _ => "•",
+                    }
                 }
-            }}
-            span { class: "text-xs tracking-wide", { props.name.to_uppercase() } }
+            }
+            span { class: "text-xs tracking-wide", {props.name.to_uppercase()} }
         }
     )
 }
@@ -40,7 +42,7 @@ pub fn Sidebar() -> Element {
     let current: AppRoute = use_route::<AppRoute>();
 
     rsx! {
-    // MaterialIconStylesheet {} // コメントアウト: フォント/アイコン依存を一時的に外す
+        // MaterialIconStylesheet {} // コメントアウト: フォント/アイコン依存を一時的に外す
         link { rel: "stylesheet", href: CSS_PATH }
         div { class: "sidebar-container",
             div { class: "button-container",

@@ -52,13 +52,13 @@ pub fn Inputs(
                     class: "btn btn-primary",
                     onclick: move |_: MouseEvent| async move {
                         handle_submit(
-                                    input_name(),
-                                    input_amount(),
-                                    flow_type,
-                                    parent_need_refresh,
-                                    disp_input,
-                                )
-                                .await;
+                                input_name(),
+                                input_amount(),
+                                flow_type,
+                                parent_need_refresh,
+                                disp_input,
+                            )
+                            .await;
                     },
                     "追加"
                 }
@@ -74,9 +74,7 @@ async fn handle_submit(
     mut parent_need_refresh: Signal<bool>,
     mut disp_input: Signal<bool>,
 ) {
-    if input_name.is_empty() {
-        return;
-    } else if input_amount == 0 {
+    if input_name.is_empty() || input_amount == 0 {
         return;
     }
 

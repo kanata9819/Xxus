@@ -53,15 +53,12 @@ pub fn WorkSchedule(
         let ini_result: bool =
             invoke::<bool>("init_default_value_db", &serde_json::json!({})).await;
 
-        if ini_result
-            && date.read().is_empty() {
-                let fetched_default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>(
-                    "get_default_work_schedule",
-                    &serde_json::json!({}),
-                )
-                .await;
-                default_opt_sig.set(fetched_default_opt);
-            }
+        if ini_result && date.read().is_empty() {
+            let fetched_default_opt: Option<WorkRecord> =
+                invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({}))
+                    .await;
+            default_opt_sig.set(fetched_default_opt);
+        }
     });
 
     let time_sheet_data: Vec<WorkRecord> = timesheet_data_props.clone();
@@ -395,7 +392,7 @@ fn format_minutes(m: i32) -> String {
 
 fn set_timesheet_data(
     display_date: String,
-    timesheet_data: &Vec<WorkRecord>,
+    timesheet_data: &[WorkRecord],
     mut signals: LocalSignals,
 ) {
     for record in timesheet_data.iter() {
@@ -413,7 +410,7 @@ fn set_timesheet_data(
     }
 }
 
-fn check_specific_data_exist(timesheet_data: &Vec<WorkRecord>, display_date: String) -> bool {
+fn check_specific_data_exist(timesheet_data: &[WorkRecord], display_date: String) -> bool {
     for record in timesheet_data.iter() {
         if record.date == display_date {
             return true;
