@@ -1,20 +1,32 @@
-use chrono::{NaiveDate};
+use chrono::NaiveDate;
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
-// use web_sys::console::log_1;
-use payroll_core::calc_total_salary;
+use tauri_sys::core::invoke;
 
 #[component]
 pub fn SalaryPreview(
     work_data: Signal<Vec<WorkRecord>>,
     selected_date: Signal<NaiveDate>,
 ) -> Element {
-    // 月変更やレコード変更ごとに常に最新を計算 (データ量が増えたら再度最適化検討)
-    let total_salary = {
-        let wd = work_data.read();
-        let sd = selected_date.read();
-        calc_total_salary(&wd, &sd)
-    };
+
+    let total_salary: Signal<i32> = use_signal(|| 0);
+
+    use_effect(move || {
+        let wd: Vec<WorkRecord> = work_data.read().clone(); // VecはClone必須
+        let sd: NaiveDate = *selected_date.read(); // NaiveDateはCopy
+
+        let mut total_salary_sig = total_salary.to_owned();
+
+        spawn(async move {
+            let calc_result: i32 = invoke::<i32>(
+                "calc_total_salary",
+                &serde_json::json!({ "work_data": &wd, "selected_date": &sd }),
+            )
+            .await;
+
+            total_salary_sig.set(calc_result);
+        });
+    });
 
     rsx! {
         div { class: "p-4 border rounded mb-4 max-w-md",

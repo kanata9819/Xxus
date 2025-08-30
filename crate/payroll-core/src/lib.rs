@@ -1,7 +1,7 @@
-use chrono::{NaiveDate, Datelike};
+use chrono::{Datelike, NaiveDate};
 use shared_types::WorkRecord;
 
-pub fn calc_total_salary(work_data: &[WorkRecord], display: &NaiveDate) -> i32 {
+pub fn calc_total_salary(work_data: &[WorkRecord], display: &NaiveDate) -> Result<i32, String> {
     let mut total: i32 = 0;
     let display_ym: String = format!("{}{:02}", display.year(), display.month());
 
@@ -16,6 +16,5 @@ pub fn calc_total_salary(work_data: &[WorkRecord], display: &NaiveDate) -> i32 {
             total += record.amount;
         }
     }
-
-    total
+    Ok(total)
 }

@@ -30,7 +30,7 @@ dotenv = "0.15.0"
 sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio-rustls"] }
 shared-types = { path = "../crate/shared-types" }
 payroll-core = { path = "../crate/payroll-core" }
-chrono = "0.4.41"
+chrono = { version = "0.4.41", features = ["serde"] }
 dirs = "5"
 
 # デバッグ用設定

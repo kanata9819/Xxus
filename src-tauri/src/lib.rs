@@ -6,6 +6,8 @@ use data_access::{
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
 use crate::data_access::db_path as resolved_db_path;
 use tauri::{Manager, Emitter};
+use payroll_core as payroll;
+use chrono::NaiveDate;
 
 #[tauri::command]
 async fn init_db() -> bool {
@@ -99,6 +101,12 @@ async fn get_default_work_schedule() -> Result<Option<WorkRecord>, String> {
     sdv::get_default_work_schedule().await
 }
 
+//=============Payroll========================
+#[tauri::command]
+async fn calc_total_salary(work_data: &Vec<WorkRecord>, selected_date: &NaiveDate) -> Result<i32, String> {
+    payroll::calc_total_salary(work_data, selected_date)
+}
+
 //===============CORE=========================================
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -133,7 +141,8 @@ pub fn run() {
             get_work_schedule_data,
             db_path,
             delete_specific_schedule_data,
-            update_work_schedule
+            update_work_schedule,
+            calc_total_salary
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
