@@ -1,13 +1,13 @@
 mod data_access;
 
+use crate::data_access::db_path as resolved_db_path;
+use chrono::NaiveDate;
 use data_access::{
     data_access as dac, init_pool, setting_default_value as sdv, work_schedule as ws,
 };
-use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
-use crate::data_access::db_path as resolved_db_path;
-use tauri::{Manager, Emitter};
 use payroll_core as payroll;
-use chrono::NaiveDate;
+use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
+use tauri::{Emitter, Manager};
 
 #[tauri::command]
 async fn init_db() -> bool {
@@ -103,8 +103,11 @@ async fn get_default_work_schedule() -> Result<Option<WorkRecord>, String> {
 
 //=============Payroll========================
 #[tauri::command]
-async fn calc_total_salary(work_data: &Vec<WorkRecord>, selected_date: &NaiveDate) -> Result<i32, String> {
-    payroll::calc_total_salary(work_data, selected_date)
+async fn calc_total_salary(
+    work_data: Vec<WorkRecord>,
+    selected_date: NaiveDate,
+) -> Result<i32, String> {
+    payroll::calc_total_salary(&work_data, &selected_date)
 }
 
 //===============CORE=========================================

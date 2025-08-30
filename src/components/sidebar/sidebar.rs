@@ -1,6 +1,6 @@
+use crate::enums::enum_global::AppRoute;
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
-use crate::enums::enum_global::AppRoute;
 // use dioxus_material_icons::{MaterialIconStylesheet, MaterialIcon}; // コメントアウト: リリースで不具合切り分けのため無効化
 
 const CSS_PATH: Asset = asset!("/assets/components/sidebar/sidebar.css");

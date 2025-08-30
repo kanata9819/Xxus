@@ -12,7 +12,7 @@ pub fn Inputs(
     amount: Signal<i32>,
     flow_type: &'static str,
     parent_need_refresh: Signal<bool>,
-    disp_input: Signal<bool>
+    disp_input: Signal<bool>,
 ) -> Element {
     let mut input_name: Signal<String> = use_signal(|| String::new());
     let mut input_amount: Signal<i32> = use_signal(|| 0);
@@ -74,7 +74,7 @@ async fn handle_submit(
     input_amount: i32,
     flow_type: &str,
     mut parent_need_refresh: Signal<bool>,
-    mut disp_input: Signal<bool>
+    mut disp_input: Signal<bool>,
 ) {
     if input_name.is_empty() {
         return;

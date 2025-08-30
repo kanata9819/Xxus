@@ -10,10 +10,10 @@ pub struct CashFlow {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct  AddCashFlowProps {
+pub struct AddCashFlowProps {
     pub name: String,
     pub amount: i32,
-    pub flow_type: String
+    pub flow_type: String,
 }
 
 /// 親に渡すデータ（必要なら serde を付けてバックエンドへ）

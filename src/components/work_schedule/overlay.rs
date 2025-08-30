@@ -56,4 +56,3 @@ pub fn Overlay(show_settings: Signal<bool>, on_toast: EventHandler<(String, bool
         }
     }
 }
-

@@ -1,5 +1,5 @@
-use dioxus::prelude::*;
 use crate::enums::enum_global::FlowType;
+use dioxus::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Props)]
 pub struct CashFlows {
@@ -13,4 +13,3 @@ pub struct CashFlow {
     pub name: String,
     pub flow: FlowType,
 }
-

@@ -6,21 +6,21 @@ use tauri_sys::core::invoke;
 #[component]
 pub fn SalaryPreview(
     work_data: Signal<Vec<WorkRecord>>,
-    selected_date: Signal<NaiveDate>,
+    display_month: Signal<NaiveDate>,
 ) -> Element {
-
     let total_salary: Signal<i32> = use_signal(|| 0);
 
     use_effect(move || {
         let wd: Vec<WorkRecord> = work_data.read().clone(); // VecはClone必須
-        let sd: NaiveDate = *selected_date.read(); // NaiveDateはCopy
+        let sd: NaiveDate = *display_month.read(); // NaiveDateはCopy
 
         let mut total_salary_sig = total_salary.to_owned();
 
         spawn(async move {
             let calc_result: i32 = invoke::<i32>(
                 "calc_total_salary",
-                &serde_json::json!({ "work_data": &wd, "selected_date": &sd }),
+                // Tauri の引数名マッピング: Rust 側 work_data -> JS 側 workData / selected_date -> selectedDate
+                &serde_json::json!({ "workData": wd, "selectedDate": sd }),
             )
             .await;
 

@@ -1,7 +1,7 @@
-use dioxus::prelude::*;
-use dioxus_router::prelude::{Outlet};
 use crate::components::sidebar::sidebar::Sidebar;
 use crate::enums::enum_global::AppRoute;
+use dioxus::prelude::*;
+use dioxus_router::prelude::Outlet;
 
 const CSS_PATH: Asset = asset!("assets/styles.css");
 
@@ -16,4 +16,3 @@ pub fn MainLayout() -> Element {
         }
     }
 }
-

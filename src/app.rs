@@ -1,7 +1,7 @@
-use dioxus::prelude::*;
-use wasm_bindgen::prelude::*;
 use crate::enums::enum_global::AppRoute;
+use dioxus::prelude::*;
 use dioxus_router::prelude::Router;
+use wasm_bindgen::prelude::*;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 

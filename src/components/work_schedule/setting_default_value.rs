@@ -1,4 +1,4 @@
-use dioxus::{prelude::*};
+use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
 
@@ -15,7 +15,9 @@ pub fn SettingDefaultValue(on_submit: EventHandler<WorkRecord>) -> Element {
 
     use_effect(move || {
         spawn(async move {
-            let default_opt: Option<WorkRecord> = invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({})).await;
+            let default_opt: Option<WorkRecord> =
+                invoke::<Option<WorkRecord>>("get_default_work_schedule", &serde_json::json!({}))
+                    .await;
             if let Some(default) = default_opt {
                 start_time.set(default.start_time);
                 end_time.set(default.end_time);

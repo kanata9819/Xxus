@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
-use tauri_sys::core::invoke;
 use serde_json::json;
+use tauri_sys::core::invoke;
 
 const CSS_PATH: Asset = asset!("assets/components/settings/settings.css");
 

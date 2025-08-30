@@ -1,9 +1,9 @@
-use dioxus_router::prelude::*;
-use dioxus::prelude::*;
 use crate::components::home::home::Home;
-use crate::components::settings::settings::Settings;
 use crate::components::layout::main_layout::MainLayout;
-use crate::components::work_schedule::work_schedule_route::{WorkScheduleRoute};
+use crate::components::settings::settings::Settings;
+use crate::components::work_schedule::work_schedule_route::WorkScheduleRoute;
+use dioxus::prelude::*;
+use dioxus_router::prelude::*;
 
 #[derive(Debug, Routable, Clone, Copy, PartialEq, Eq)]
 pub enum AppRoute {
