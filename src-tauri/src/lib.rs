@@ -1,3 +1,4 @@
+mod csv;
 mod data_access;
 
 use crate::data_access::db_path as resolved_db_path;
@@ -7,7 +8,9 @@ use data_access::{
 };
 use payroll_core as payroll;
 use shared_types::{AddCashFlowProps, CashFlow, WorkRecord};
-use tauri::{Emitter, Manager};
+use std::fs;
+use tauri::WindowEvent;
+use tauri::{DragDropEvent, Emitter, Manager};
 
 #[tauri::command]
 async fn init_db() -> bool {
@@ -123,6 +126,44 @@ pub fn run() {
                 // 確認用にウィンドウイベントで通知も可能（必要なら）
                 if let Some(win) = app.get_webview_window("main") {
                     let _ = win.emit("db_path", p.display().to_string());
+
+                    let win_cloned: tauri::WebviewWindow = win.clone();
+
+                    win.on_window_event(move |e: &WindowEvent| {
+                        if let WindowEvent::DragDrop(ev) = e {
+                            if let DragDropEvent::Drop { paths, .. } = ev {
+                                let dropped_files: Vec<shared_types::DroppedFile> = paths
+                                    .iter()
+                                    .filter_map(|p| {
+                                        let name: String =
+                                            p.file_name()?.to_string_lossy().into_owned();
+
+                                        let ext: String = p
+                                            .extension()
+                                            .and_then(|s| s.to_str())
+                                            .unwrap_or("")
+                                            .to_lowercase();
+
+                                        let size: u64 =
+                                            fs::metadata(p).map(|m| m.len()).unwrap_or(0);
+
+                                        Some(shared_types::DroppedFile {
+                                            path: p.to_string_lossy().into_owned(),
+                                            name,
+                                            ext,
+                                            size,
+                                        })
+                                    })
+                                    .collect();
+
+                                win_cloned
+                                    .emit("file_dropped", dropped_files)
+                                    .unwrap_or_else(|e| {
+                                        eprintln!("[DragDrop] emit error: {e}");
+                                    });
+                            }
+                        }
+                    });
                 }
             }
             Ok(())

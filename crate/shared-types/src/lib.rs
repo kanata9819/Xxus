@@ -29,3 +29,11 @@ pub struct WorkRecord {
     pub amount: i32,        // 概算支給額(円) = 時給 * 分 / 60
     pub note: String,
 }
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DroppedFile {
+    pub path: String,
+    pub name: String,
+    pub ext: String,
+    pub size: u64,
+}
