@@ -142,12 +142,11 @@ pub fn WorkSchedule(
                 }
             }
 
-            div { class: "min-h-[65vh] p-4 flex flex-row gap-4 z-30 inset-0",
+            div { class: "min-h-[30vh] p-4 flex flex-row gap-4 mx-auto z-30 inset-0",
                 button { onclick: move |_| show_input.set(false), "×" }
                 // ダーク調のパネル背景
-                div { class: "flex flex-col gap-4 w-[50vw] modal-panel-dark",
-                    h2 { class: "font-bold text-xl", "勤務実績入力" }
-
+                // div { class: "flex flex-col gap-4 w-[50vw] modal-panel-dark",
+                div { class: "flex flex-col gap-4 w-[50vw] max-w-[100vw]",
                     // エラー表示
                     if !error().is_empty() {
                         div { class: "text-red-600 text-sm", "{error()}" }
@@ -324,6 +323,7 @@ pub fn WorkSchedule(
                         }
                     }
                 }
+                // }
                 div {
                     // 時給計算コンポーネント
                     CalcHourlyWage {}

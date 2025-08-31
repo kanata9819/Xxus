@@ -1,5 +1,6 @@
 use super::input::Inputs;
 use super::list::List;
+use super::import_csv::ImportCsv;
 use dioxus::prelude::*;
 use serde_json;
 use shared_types::CashFlow;
@@ -29,6 +30,8 @@ pub fn Home() -> Element {
     let mut disp_in_input: Signal<bool> = use_signal(|| false);
     let mut need_refresh: Signal<bool> = use_signal(|| false);
 
+    let mut show_import_csv: Signal<bool> = use_signal(|| false);
+
     let home_strc: HomeSignals = HomeSignals {
         name: (item_name),
         total: (total_amount),
@@ -55,6 +58,22 @@ pub fn Home() -> Element {
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
+        button {
+            class: "btn-primary fixed top-5 right-15 w-[vw5] h-[vh5]",
+            onclick: move |_| {
+                let flg: bool = *show_import_csv.read();
+                show_import_csv.set(!flg);
+            },
+            "CSVインポート"
+        }
+        if *show_import_csv.read() {
+            ImportCsv {
+                visible: *show_import_csv.read(),
+                on_close: move |_| {
+                    show_import_csv.set(false);
+                },
+            }
+        }
         div { class: "home-container flex flex-col gap-4 w-[85vw] max-w-[100vw] mx-auto mt-4",
             span { class: "text-xl mr-1", "🏠" }
             div { class: "budget-container",
