@@ -79,13 +79,17 @@ pub fn ImportCsv(props: ImportCsvProps) -> Element {
                 }
 
                 // ファイル情報表示エリア
-                div { class: "top-1/2 left-1/2 flex flex-col items-center gap-4 border-2 w-[60vw] h-[30vh] border-slate-600 pb-4 rounded-lg",
+                div { class: "top-1/2 pt-4 left-1/2 flex flex-col items-center gap-4 border-2 w-[60vw] h-[30vh] border-slate-600 pb-4 rounded-lg",
 
                     for file in dropped_files.iter() {
 
-                        div { class: "flex justify-between items-center flex-row p-4 w-[50vw] border-2 border-slate-600 rounded-lg",
-                            "{file.name}"
-                            button { class: "btn-primary right-0", "取り込み" }
+                        if file.ext == "csv" {
+
+                            // ファイル情報表示（単一）
+                            div { class: "flex justify-between items-center flex-row p-4 w-[50vw] border-2 border-slate-600 rounded-lg mt-2",
+                                "{file.name}"
+                                button { class: "btn-primary right-0", "取り込み" }
+                            }
                         }
                     }
                 }
