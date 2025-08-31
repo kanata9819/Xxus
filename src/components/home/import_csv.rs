@@ -70,24 +70,24 @@ pub fn ImportCsv(props: ImportCsvProps) -> Element {
         div { class: "fixed flex-col inset-0 z-[10] bg-black/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-150 text-white",
 
             // 要素整形用コンテナ
-            div { class: "relative flex flex-col items-center gap-6 bg-slate-800 rounded-xl p-8",
-
-                // ファイル情報表示エリア
-                div { class: "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-4",
-
-                    if dropped_files.read().len() > 0 {
-                        div { class: "text-sm text-slate-400", "ドロップされたファイル:" }
-                    }
-
-                    for file in dropped_files.iter() {
-                        "{file.name}"
-                    }
-                }
+            div { class: "relative w-[80vw] h-[90vh] flex flex-col justify-center items-center gap-6 bg-slate-800/80 rounded-xl p-8",
 
                 button {
-                    class: "btn-secondary mt-4 right-0",
+                    class: "btn-primary mt-4 right-0",
                     onclick: move |_| props.on_close.call(()),
                     "閉じる"
+                }
+
+                // ファイル情報表示エリア
+                div { class: "top-1/2 left-1/2 flex flex-col items-center gap-4 border-2 w-[60vw] h-[30vh] border-slate-600 pb-4 rounded-lg",
+
+                    for file in dropped_files.iter() {
+
+                        div { class: "flex justify-between items-center flex-row p-4 w-[50vw] border-2 border-slate-600 rounded-lg",
+                            "{file.name}"
+                            button { class: "btn-primary right-0", "取り込み" }
+                        }
+                    }
                 }
 
                 // CSVドロップエリア
