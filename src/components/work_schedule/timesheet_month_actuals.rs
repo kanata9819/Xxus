@@ -248,9 +248,9 @@ pub fn TimesheetMonthActuals() -> Element {
                     onclick: move |_| show_input.set(false),
                 }
                 // パネル
-                div { class: "absolute inset-0 flex items-center justify-center p-4",
-                    div { class: "w-[100vw] max-w-[1250px] max-h-[90vh] overflow-y-auto rounded-xl bg-slate-900/95 border border-white/10 ring-1 ring-white/15 shadow-2xl backdrop-blur-xl flex flex-col",
-                        div { class: "p-5 pb-6",
+                div { class: "inset-0 flex items-center justify-center h-screen",
+                    div { class: "justify-center w-[80vw] max-w-[1250px] max-h-[90vh] overflow-y-auto rounded-xl bg-slate-900/95 border border-white/10 ring-1 ring-white/15 shadow-2xl backdrop-blur-xl flex flex-col",
+                        div { class: "items-center left-1/2 justify-center",
                             WorkSchedule {
                                 on_submit: move |props: WorkRecord| {
                                     let mut toast_set = toast;

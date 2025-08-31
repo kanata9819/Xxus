@@ -124,7 +124,7 @@ pub fn WorkSchedule(
 
     rsx! {
         link { rel: "stylesheet", href: CSS_PATH }
-        div { class: "modal-panel-dark",
+        div { class: "modal-panel-dark flex flex-col items-center",
             header { class: "p-4 flex flex-row items-center gap-4",
                 div { class: "{badge_class}",
                     // アイコン風ドット
