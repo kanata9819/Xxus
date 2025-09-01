@@ -206,10 +206,12 @@ pub fn TimesheetMonthActuals() -> Element {
                     rsx! {
                         div {
                             class: "group relative rounded-lg p-4 flex flex-col gap-1 transition-colors {bg_color} ring-1 {ring_color} shadow-sm",
+
                             onclick: move |_| {
                                 selected_date.set(date_info_for_display.display_date);
                                 show_input.set(true);
                             },
+
                             div { class: "flex items-baseline gap-2",
                                 span { class: "text-sm font-semibold tracking-wide {base_color}",
                                     "{current_date_info.current_month_sig}月{day}日"
@@ -217,12 +219,14 @@ pub fn TimesheetMonthActuals() -> Element {
                                 span { class: "text-[10px] md:text-[11px] tracking-wider text-slate-400 group-hover:text-slate-300 transition",
                                     "({weekday})"
                                 }
+
                                 if let Some(b) = today_badge {
                                     span { class: "ml-auto px-1.5 py-0.5 text-[10px] rounded-md bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/30",
                                         "{b}"
                                     }
                                 }
                             }
+
                             // 将来: 実績データセクション
                             div { class: "h-5 text-[11px] group-hover:text-slate-400 italic",
                                 if check_data_exists(&date_info_for_display.display_date, &work_data.read()) {

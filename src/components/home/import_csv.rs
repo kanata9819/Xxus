@@ -44,6 +44,10 @@ impl DragEventHandler {
     }
 }
 
+fn import_csv(file: &shared_types::DroppedFile) {
+    // CSVファイルのインポート処理を実装予定
+}
+
 #[component]
 pub fn ImportCsv(props: ImportCsvProps) -> Element {
     if !props.visible {
@@ -52,6 +56,13 @@ pub fn ImportCsv(props: ImportCsvProps) -> Element {
 
     let drag_handler: DragEventHandler = DragEventHandler::new();
     let dropped_files: Signal<Vec<shared_types::DroppedFile>> = use_signal(|| vec![]);
+    let mut file_info: Signal<shared_types::DroppedFile> =
+        use_signal(|| shared_types::DroppedFile {
+            name: String::new(),
+            path: String::new(),
+            ext: String::new(),
+            size: 0,
+        });
 
     use_effect(move || {
         let mut df_cloned: Signal<Vec<shared_types::DroppedFile>> = dropped_files.clone();
@@ -83,11 +94,10 @@ pub fn ImportCsv(props: ImportCsvProps) -> Element {
 
                     for file in dropped_files.iter() {
 
-                        if file.ext == "csv" {
-
+                        if &file.ext == "csv" {
                             // ファイル情報表示（単一）
                             div { class: "flex justify-between items-center flex-row p-4 w-[50vw] border-2 border-slate-600 rounded-lg mt-2",
-                                "{file.name}"
+                                "{file.name}" // 9/1 ここでファイルパスをシグナルにセットしたいけどエラー出る！！
                                 button { class: "btn-primary right-0", "取り込み" }
                             }
                         }
