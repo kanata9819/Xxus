@@ -150,7 +150,7 @@ pub fn WorkSchedule(
                 }
             }
 
-            div { class: "min-h-[30vh] p-4 flex flex-row gap-4 mx-auto z-30 inset-0",
+            div { class: "min-h-[30vh] w-full p-4 flex flex-row gap-4 mx-auto z-30 inset-0",
                 button { onclick: move |_| show_input.set(false), "×" }
                 // ダーク調のパネル背景
                 div { class: "flex flex-col gap-4 w-[50vw] max-w-[100vw]",

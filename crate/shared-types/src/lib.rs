@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+pub mod paypay;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CashFlow {

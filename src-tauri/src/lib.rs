@@ -113,6 +113,17 @@ async fn calc_total_salary(
     payroll::calc_total_salary(&work_data, &selected_date)
 }
 
+//===============CSV=========================================
+#[tauri::command]
+async fn import_csv(path: String) -> Result<bool, String> {
+    println!("Importing CSV from path: {}", path);
+    let result: Result<bool, String> = match csv::import_csv::import_csv(path).await {
+        Ok(result) => Ok(result),
+        Err(e) => Err(e),
+    };
+    result
+}
+
 //===============CORE=========================================
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -186,7 +197,8 @@ pub fn run() {
             db_path,
             delete_specific_schedule_data,
             update_work_schedule,
-            calc_total_salary
+            calc_total_salary,
+            import_csv
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
