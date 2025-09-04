@@ -2,7 +2,7 @@ use super::calc_hourly_wage::CalcHourlyWage;
 use dioxus::prelude::*;
 use shared_types::WorkRecord;
 use tauri_sys::core::invoke;
-// use web_sys::console::log_1;
+use web_sys::console::log_1;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
@@ -49,6 +49,14 @@ pub fn WorkSchedule(
         note,
     };
 
+    log_1(
+        &format!(
+            "WorkSchedule render: display_date={}",
+            displaying_date.read()
+        )
+        .into(),
+    );
+
     use_future(move || async move {
         let ini_result: bool =
             invoke::<bool>("init_default_value_db", &serde_json::json!({})).await;
@@ -62,10 +70,9 @@ pub fn WorkSchedule(
     });
 
     let time_sheet_data: Vec<WorkRecord> = timesheet_data_props.clone();
+
     use_effect(move || {
-        if *initialized.read() {
-        } else {
-            // 実績データが存在すれば、表示内容を設定する
+        if !*initialized.read() {
             if check_specific_data_exist(&time_sheet_data, displaying_date.read().to_string()) {
                 is_data_exist.set(true);
                 set_timesheet_data(
@@ -104,6 +111,7 @@ pub fn WorkSchedule(
 
     let is_exist_now =
         check_specific_data_exist(&timesheet_data_props, displaying_date.read().to_string());
+
     let (badge_class, badge_text) = if is_exist_now {
         (
             "px-3 py-1.5 text-[11px] font-semibold tracking-wide rounded-md
@@ -145,7 +153,6 @@ pub fn WorkSchedule(
             div { class: "min-h-[30vh] p-4 flex flex-row gap-4 mx-auto z-30 inset-0",
                 button { onclick: move |_| show_input.set(false), "×" }
                 // ダーク調のパネル背景
-                // div { class: "flex flex-col gap-4 w-[50vw] modal-panel-dark",
                 div { class: "flex flex-col gap-4 w-[50vw] max-w-[100vw]",
                     // エラー表示
                     if !error().is_empty() {

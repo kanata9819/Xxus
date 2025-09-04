@@ -14,7 +14,7 @@ pub fn SalaryPreview(
         let wd: Vec<WorkRecord> = work_data.read().clone(); // VecはClone必須
         let sd: NaiveDate = *display_month.read(); // NaiveDateはCopy
 
-        let mut total_salary_sig = total_salary.to_owned();
+        let mut total_salary_sig: Signal<i32> = total_salary.to_owned();
 
         spawn(async move {
             let calc_result: i32 = invoke::<i32>(
