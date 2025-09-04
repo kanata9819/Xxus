@@ -4,6 +4,7 @@ use dioxus_router::prelude::Router;
 
 static CSS_PATH: Asset = asset!("/assets/styles.css");
 
+#[allow(non_snake_case)]
 #[component]
 pub fn App() -> Element {
     rsx!(

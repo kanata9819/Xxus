@@ -5,7 +5,7 @@ use sqlx::{Executor, Row};
 
 pub async fn init_db() -> Result<(), String> {
     // Ensure pool initialized outside (lib.rs) before calling.
-    let ddl = r#"
+    let ddl: &'static str = r#"
         CREATE TABLE IF NOT EXISTS cash_flow (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             amount      INTEGER NOT NULL,
@@ -22,11 +22,11 @@ pub async fn init_db() -> Result<(), String> {
 }
 
 pub async fn list_cash_flows() -> Result<Vec<CashFlow>, String> {
-    let rows = sqlx::query("SELECT id, amount, name, flow, created_at FROM cash_flow")
+    let rows: Vec<sqlx::sqlite::SqliteRow> = sqlx::query("SELECT id, amount, name, flow, created_at FROM cash_flow")
         .fetch_all(pool())
         .await
         .map_err(|e| e.to_string())?;
-    let data = rows
+    let data: Vec<CashFlow> = rows
         .into_iter()
         .map(|r| CashFlow {
             id: r.get::<i64, _>(0) as i32,
